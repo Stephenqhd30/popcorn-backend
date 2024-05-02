@@ -1,0 +1,22 @@
+{
+  "groups": [
+    {
+      "name": "spring.redis",
+      "type": "com.stephen.popcorn.config.RedissonConfig",
+      "sourceType": "com.stephen.popcorn.config.RedissonConfig"
+    }
+  ],
+  "properties": [
+    {
+      "name": "spring.redis.host",
+      "type": "java.lang.String",
+      "sourceType": "com.stephen.popcorn.config.RedissonConfig"
+    },
+    {
+      "name": "spring.redis.port",
+      "type": "java.lang.String",
+      "sourceType": "com.stephen.popcorn.config.RedissonConfig"
+    }
+  ],
+  "hints": []
+}

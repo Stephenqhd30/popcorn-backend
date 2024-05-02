@@ -1,0 +1,43 @@
+Spring:
+  profiles:
+    active: dev
+  application:
+    name: Stephen-backend
+  # DataSource Config
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/stephen?serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+  # 配置 Swagger + Knife4j
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  # Redis
+  redis:
+    port: 6379
+    host: localhost
+    # database: 0
+    database: 1
+# 服务端口
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+    # session 失效时间(分钟)
+    session:
+      timeout: 86400
+      store-type: redis
+      cookie:
+        domain: localhost
+# mybatis-plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  # 逻辑删除
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 逻辑删除的字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
