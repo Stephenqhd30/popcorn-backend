@@ -1,5 +1,6 @@
 package com.stephen.popcorn.common;
 
+import com.stephen.popcorn.constant.CommonConstant;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -19,14 +20,24 @@ public class PageRequest implements Serializable {
 	
 	
 	/**
-	 * 页面大小
+	 * 当前页号
 	 */
-	protected int pageSize = 10;
+	private int current = 1;
 	
 	/**
-	 * 当前是第几页
+	 * 页面大小
 	 */
-	protected int pageNum = 1;
+	private int pageSize = 10;
+	
+	/**
+	 * 排序字段
+	 */
+	private String sortField;
+	
+	/**
+	 * 排序顺序（默认升序）
+	 */
+	private String sortOrder = CommonConstant.SORT_ORDER_ASC;
 	
 	
 }

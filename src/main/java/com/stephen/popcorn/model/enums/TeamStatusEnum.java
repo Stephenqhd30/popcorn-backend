@@ -1,11 +1,14 @@
 package com.stephen.popcorn.model.enums;
 
+
+
 /**
  * 队伍状态枚举类
  *
  * @author: stephen qiu
  * @create: 2024-03-28 21:27
  **/
+
 public enum TeamStatusEnum {
 	PUBLIC(0, "公开"),
 	PRIVATE(1, "私有"),

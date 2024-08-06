@@ -1,7 +1,7 @@
 package com.stephen.popcorn.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.stephen.popcorn.model.domain.Tag;
+import com.stephen.popcorn.model.entity.Tag;
 
 
 /**

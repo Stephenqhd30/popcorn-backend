@@ -7,9 +7,9 @@ import com.google.gson.reflect.TypeToken;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.exception.BusinessException;
 import com.stephen.popcorn.mapper.UserMapper;
-import com.stephen.popcorn.model.domain.User;
+import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.util.AlgorithmUtils;
+import com.stephen.popcorn.utils.AlgorithmUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -58,13 +58,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 	 * @param userAccount   用户账户
 	 * @param userPassword  用户密码
 	 * @param checkPassword 校验密码
-	 * @param studentNumber 学号
 	 * @return 返回
 	 */
 	@Override
-	public long userRegister(String userAccount, String userPassword, String checkPassword, String studentNumber) {
+	public long userRegister(String userAccount, String userPassword, String checkPassword) {
 		// 1. 校验
-		if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, studentNumber)) {
+		if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
 		}
 		// 校验用户账户的长度不小于4
@@ -75,11 +74,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 		// 校验密码的长度不小于8
 		if (userPassword.length() < 8 || checkPassword.length() < 8) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
-		}
-		
-		// 对学号进行校验
-		if (studentNumber.length() > 10) {
-			throw new BusinessException(ErrorCode.PARAMS_ERROR, "学生学号有误");
 		}
 		
 		// 账户不能包含特殊字符 [validPattern 有效模式]
@@ -103,7 +97,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 		
 		// 校验 学号不能重复
 		queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("studentNumber", studentNumber);
 		count = userMapper.selectCount(queryWrapper);
 		if (count > 0) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR, "学号重复");
@@ -116,7 +109,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 		User user = new User();
 		user.setUserAccount(userAccount);
 		user.setUserPassword(encryptPassword);
-		user.setStudentNumber(studentNumber);
 		boolean saveResult = this.save(user);
 		
 		if (!saveResult) {
@@ -186,9 +178,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 		}
 		User safetyUser = new User();
 		safetyUser.setId(originUser.getId());
-		safetyUser.setUsername(originUser.getUsername());
+		safetyUser.setUserName(originUser.getUserName());
 		safetyUser.setUserAccount(originUser.getUserAccount());
-		safetyUser.setAvatarUrl(originUser.getAvatarUrl());
+		safetyUser.setUserAvatar(originUser.getUserAvatar());
 		safetyUser.setGender(originUser.getGender());
 		safetyUser.setPhone(originUser.getPhone());
 		safetyUser.setEmail(originUser.getEmail());
@@ -228,7 +220,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 		User userObj = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
 		// 对获取到的用户做一次非空判断
 		if (userObj == null) {
-			throw new BusinessException(ErrorCode.NULL_ERROR);
+			throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
 		}
 		return userObj;
 	}
@@ -351,11 +343,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 		// 如果是管理员，允许更新任意用户
 		// 如果不是管理员 只允许更新个人信息
 		if (!isAdmin(loginUser) && userId != loginUser.getId()) {
-			throw new BusinessException(ErrorCode.NO_AUTH);
+			throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
 		}
 		User oldUser = userMapper.selectById(userId);
 		if (oldUser == null) {
-			throw new BusinessException(ErrorCode.NULL_ERROR);
+			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
 		
 		return userMapper.updateById(user);
@@ -403,7 +395,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 		// 然后判断该账号是否为管理员
 		Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
 		User user = (User) attribute;
-		return user != null && user.getUserRole().intValue() == ADMIN_ROLE.intValue();
+		return user != null && Objects.equals(user.getUserRole(), ADMIN_ROLE);
 	}
 	
 	/**

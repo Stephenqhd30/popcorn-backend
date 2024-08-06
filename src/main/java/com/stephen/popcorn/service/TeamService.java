@@ -1,12 +1,12 @@
 package com.stephen.popcorn.service;
 
-import com.stephen.popcorn.model.domain.Team;
+import com.stephen.popcorn.model.entity.Team;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.stephen.popcorn.model.domain.User;
-import com.stephen.popcorn.model.dto.TeamQuery;
-import com.stephen.popcorn.model.request.TeamJoinRequest;
-import com.stephen.popcorn.model.request.TeamQuitRequest;
-import com.stephen.popcorn.model.request.TeamUpdateRequest;
+import com.stephen.popcorn.model.entity.User;
+import com.stephen.popcorn.model.dto.team.TeamQueryRequest;
+import com.stephen.popcorn.model.dto.team.TeamJoinRequest;
+import com.stephen.popcorn.model.dto.team.TeamQuitRequest;
+import com.stephen.popcorn.model.dto.team.TeamUpdateRequest;
 import com.stephen.popcorn.model.vo.TeamUserVO;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,11 +32,11 @@ public interface TeamService extends IService<Team> {
 	/**
 	 * 列表查询
 	 *
-	 * @param teamQuery
+	 * @param teamQueryRequest
 	 * @param isAdmin
 	 * @return
 	 */
-	List<TeamUserVO> listTeams(TeamQuery teamQuery, boolean isAdmin);
+	List<TeamUserVO> listTeams(TeamQueryRequest teamQueryRequest, boolean isAdmin);
 	
 	/**
 	 * 更新队伍

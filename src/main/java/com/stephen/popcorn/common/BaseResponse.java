@@ -1,54 +1,46 @@
 package com.stephen.popcorn.common;
 
-import lombok.Data;
-
 import java.io.Serializable;
+
+import lombok.Data;
 
 /**
  * 通用返回类
  *
- * @author: stephen qiu
- * @create: 2023-12-03 17:10
- **/
+ * @param <T>
+ * @author stephen qiu
+ */
 @Data
 public class BaseResponse<T> implements Serializable {
 	
+	private static final long serialVersionUID = 3801016192261040965L;
+	
 	/**
-	 * 状态码
+	 * 响应码
 	 */
 	private int code;
 	
 	/**
-	 * 数据
+	 * 响应数据
 	 */
 	private T data;
 	
 	/**
-	 * 消息
+	 * 响应消息
 	 */
 	private String message;
 	
-	/**
-	 * 描述
-	 */
-	private String description;
-	
-	public BaseResponse(int code, T data, String message, String description) {
+	public BaseResponse(int code, T data, String message) {
 		this.code = code;
 		this.data = data;
 		this.message = message;
-		this.description = description;
-	}
-	
-	public BaseResponse(int code, T data, String message) {
-		this(code, data, message, "");
 	}
 	
 	public BaseResponse(int code, T data) {
-		this(code, data, "", "");
+		this(code, data, "");
 	}
 	
 	public BaseResponse(ErrorCode errorCode) {
-		this(errorCode.getCode(), null, errorCode.getMessage(), errorCode.getDescription());
+		this(errorCode.getCode(), null, errorCode.getMessage());
 	}
 }

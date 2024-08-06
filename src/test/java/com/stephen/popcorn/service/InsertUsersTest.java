@@ -1,9 +1,6 @@
 package com.stephen.popcorn.service;
 
-import com.mysql.cj.util.TimeUtil;
-import com.stephen.popcorn.mapper.UserMapper;
-import com.stephen.popcorn.model.domain.User;
-import org.junit.jupiter.api.Assertions;
+import com.stephen.popcorn.model.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.StopWatch;

@@ -1,9 +1,7 @@
 package com.stephen.popcorn.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.stephen.popcorn.common.BaseResponse;
-import com.stephen.popcorn.model.domain.User;
-import com.stephen.popcorn.model.vo.UserVO;
+import com.stephen.popcorn.model.entity.User;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -23,10 +21,9 @@ public interface UserService extends IService<User> {
 	 * @param userAccount   用户账户
 	 * @param userPassword  用户密码
 	 * @param checkPassword 校验密码
-	 * @param studentNumber 学号
 	 * @return 新用户 id
 	 */
-	long userRegister(String userAccount, String userPassword, String checkPassword, String studentNumber);
+	long userRegister(String userAccount, String userPassword, String checkPassword);
 	
 	/**
 	 * 用户登录

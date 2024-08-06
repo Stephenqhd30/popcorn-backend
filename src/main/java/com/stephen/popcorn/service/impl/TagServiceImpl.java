@@ -3,7 +3,7 @@ package com.stephen.popcorn.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import com.stephen.popcorn.mapper.TagMapper;
-import com.stephen.popcorn.model.domain.Tag;
+import com.stephen.popcorn.model.entity.Tag;
 import com.stephen.popcorn.service.TagService;
 import org.springframework.stereotype.Service;
 

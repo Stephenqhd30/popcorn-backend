@@ -5,12 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.exception.BusinessException;
-import com.stephen.popcorn.model.domain.User;
-import com.stephen.popcorn.model.request.UserLoginRequest;
-import com.stephen.popcorn.model.request.UserRegisterRequest;
-import com.stephen.popcorn.model.vo.UserVO;
+import com.stephen.popcorn.model.entity.User;
+import com.stephen.popcorn.model.dto.user.UserLoginRequest;
+import com.stephen.popcorn.model.dto.user.UserRegisterRequest;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.util.ResultUtils;
+import com.stephen.popcorn.utils.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,7 +32,6 @@ import static com.stephen.popcorn.constant.UserConstant.USER_LOGIN_STATE;
  * @create: 2023-12-02 19:51
  **/
 @RestController
-@CrossOrigin(origins = {"http://localhost:5173/"})
 @Slf4j
 @RequestMapping("/user")
 public class UserController {
@@ -42,14 +40,14 @@ public class UserController {
 	private UserService userService;
 	
 	@Resource
-	private RedisTemplate redisTemplate;
+	private RedisTemplate<String, Object> redisTemplate;
 	
 	/**
 	 * 用户注册
 	 * RequestBody SpringMVC匹配JSON字符串
 	 *
 	 * @param userRegisterRequest 自己封装的处理前端JSON的请求对象
-	 * @return
+	 * @return 用户注册成功
 	 */
 	@PostMapping("/register")
 	public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
@@ -60,11 +58,10 @@ public class UserController {
 		String userAccount = userRegisterRequest.getUserAccount();
 		String userPassword = userRegisterRequest.getUserPassword();
 		String checkPassword = userRegisterRequest.getCheckPassword();
-		String studentNumber = userRegisterRequest.getStudentNumber();
-		if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, studentNumber)) {
+		if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
 			return null;
 		}
-		long result = userService.userRegister(userAccount, userPassword, checkPassword, studentNumber);
+		long result = userService.userRegister(userAccount, userPassword, checkPassword);
 		
 		return ResultUtils.success(result);
 	}
@@ -122,7 +119,7 @@ public class UserController {
 		// 得到用户的登录态
 		User currentUser = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
 		if (currentUser == null) {
-			throw new BusinessException(ErrorCode.NOT_LOGIN);
+			throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
 		}
 		long userId = currentUser.getId();
 		// TODO 后续需要修改
@@ -140,7 +137,7 @@ public class UserController {
 	@GetMapping("/search")
 	public BaseResponse<List<User>> searchUsers(String username, HttpServletRequest request) {
 		if (!userService.isAdmin(request)) {
-			throw new BusinessException(ErrorCode.NO_AUTH, "缺少管理员权限");
+			throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "缺少管理员权限");
 		}
 		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 		
@@ -201,7 +198,7 @@ public class UserController {
 	public BaseResponse<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request) {
 		
 		if (!userService.isAdmin(request)) {
-			throw new BusinessException(ErrorCode.NO_AUTH);
+			throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
 		}
 		
 		if (id <= 0) {

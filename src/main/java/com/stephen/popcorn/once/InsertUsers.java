@@ -1,13 +1,7 @@
 package com.stephen.popcorn.once;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.stephen.popcorn.mapper.UserMapper;
-import com.stephen.popcorn.model.domain.User;
-import com.stephen.popcorn.service.UserService;
-import org.springframework.scheduling.annotation.Scheduled;
+import com.stephen.popcorn.model.entity.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
 
@@ -35,15 +29,15 @@ public class InsertUsers {
 		final int INSERT_NUM = 1000;
 		for (int i = 0; i < INSERT_NUM; i++) {
 			User user = new User();
-			user.setUsername("假用户");
+			user.setUserName("假用户");
 			user.setUserAccount("fakeStephen");
-			user.setAvatarUrl("https://pic.code-nav.cn/user_avatar/1634740539846852609/QQhGRH4F-%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230417215622.jpg");
+			user.setUserAvatar("https://pic.code-nav.cn/user_avatar/1634740539846852609/QQhGRH4F-%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20230417215622.jpg");
 			user.setGender(0);
 			user.setProfile("balabla");
 			user.setPhone("123");
 			user.setEmail("456@qq.com");
 			user.setUserStatus(0);
-			user.setUserRole(0);
+			user.setUserRole("user");
 			user.setStudentNumber("1111111");
 			user.setTags("[]");
 			user.setUserPassword("12345678");

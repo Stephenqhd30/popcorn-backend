@@ -1,14 +1,11 @@
 package com.stephen.popcorn.service;
 
-import com.stephen.popcorn.model.domain.User;
-import lombok.ToString;
+import com.stephen.popcorn.model.entity.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.stephen.popcorn.service;
 
-import com.stephen.popcorn.model.domain.UserTeam;
+import com.stephen.popcorn.model.entity.UserTeam;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

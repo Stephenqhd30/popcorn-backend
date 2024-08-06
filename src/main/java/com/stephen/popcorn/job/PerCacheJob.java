@@ -2,7 +2,7 @@ package com.stephen.popcorn.job;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.stephen.popcorn.model.domain.User;
+import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -13,7 +13,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

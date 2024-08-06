@@ -6,19 +6,19 @@ import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.DeleteRequest;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.exception.BusinessException;
-import com.stephen.popcorn.model.domain.Team;
-import com.stephen.popcorn.model.domain.User;
-import com.stephen.popcorn.model.domain.UserTeam;
-import com.stephen.popcorn.model.dto.TeamQuery;
-import com.stephen.popcorn.model.request.TeamAddRequest;
-import com.stephen.popcorn.model.request.TeamJoinRequest;
-import com.stephen.popcorn.model.request.TeamQuitRequest;
-import com.stephen.popcorn.model.request.TeamUpdateRequest;
+import com.stephen.popcorn.model.entity.Team;
+import com.stephen.popcorn.model.entity.User;
+import com.stephen.popcorn.model.entity.UserTeam;
+import com.stephen.popcorn.model.dto.team.TeamQueryRequest;
+import com.stephen.popcorn.model.dto.team.TeamAddRequest;
+import com.stephen.popcorn.model.dto.team.TeamJoinRequest;
+import com.stephen.popcorn.model.dto.team.TeamQuitRequest;
+import com.stephen.popcorn.model.dto.team.TeamUpdateRequest;
 import com.stephen.popcorn.model.vo.TeamUserVO;
 import com.stephen.popcorn.service.TeamService;
 import com.stephen.popcorn.service.UserService;
 import com.stephen.popcorn.service.UserTeamService;
-import com.stephen.popcorn.util.ResultUtils;
+import com.stephen.popcorn.utils.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +53,7 @@ public class TeamController {
 	private UserTeamService userTeamService;
 	
 	/**
-	 * 增
+	 * 添加队伍
 	 *
 	 * @param teamAddRequest
 	 * @param request
@@ -73,7 +73,7 @@ public class TeamController {
 	}
 	
 	/**
-	 * 删
+	 * 删除队伍
 	 *
 	 * @param deleteRequest
 	 * @return
@@ -127,7 +127,7 @@ public class TeamController {
 		
 		Team team = teamService.getById(id);
 		if (team == null) {
-			throw new BusinessException(ErrorCode.NULL_ERROR);
+			throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
 		}
 		
 		return ResultUtils.success(team);
@@ -136,17 +136,17 @@ public class TeamController {
 	/**
 	 * 查询返回队伍信息列表
 	 *
-	 * @param teamQuery 请求参数封装类
+	 * @param teamQueryRequest 请求参数封装类
 	 * @return
 	 */
 	@GetMapping("/list")
-	public BaseResponse<List<TeamUserVO>> listTeams(TeamQuery teamQuery, HttpServletRequest request) {
-		if (teamQuery == null) {
+	public BaseResponse<List<TeamUserVO>> listTeams(TeamQueryRequest teamQueryRequest, HttpServletRequest request) {
+		if (teamQueryRequest == null) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
 		boolean isAdmin = userService.isAdmin(request);
 		// 1、查询队伍列表
-		List<TeamUserVO> teamList = teamService.listTeams(teamQuery, isAdmin);
+		List<TeamUserVO> teamList = teamService.listTeams(teamQueryRequest, isAdmin);
 		// 队伍的id列表
 		final List<Long> teamIdList = teamList.stream().map(TeamUserVO::getId).collect(Collectors.toList());
 		// 2、判断当前用户是否已经加入了队伍
@@ -180,18 +180,18 @@ public class TeamController {
 	/**
 	 * 分页查询返回队伍信息列表
 	 *
-	 * @param teamQuery 请求参数封装类
+	 * @param teamQueryRequest 请求参数封装类
 	 * @return
 	 */
 	@GetMapping("/list/page")
 	// TODO 改造分页
-	public BaseResponse<Page<Team>> listTeamsByPage(TeamQuery teamQuery) {
-		if (teamQuery == null) {
+	public BaseResponse<Page<Team>> listTeamsByPage(TeamQueryRequest teamQueryRequest) {
+		if (teamQueryRequest == null) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
 		Team team = new Team();
-		BeanUtils.copyProperties(team, teamQuery);
-		Page<Team> page = new Page<>(teamQuery.getPageNum(), teamQuery.getPageSize());
+		BeanUtils.copyProperties(team, teamQueryRequest);
+		Page<Team> page = new Page<>(teamQueryRequest.getCurrent(), teamQueryRequest.getPageSize());
 		QueryWrapper<Team> queryWrapper = new QueryWrapper<>();
 		Page<Team> resultPage = teamService.page(page, queryWrapper);
 		
@@ -257,13 +257,13 @@ public class TeamController {
 	/**
 	 * 获取我加入的队伍
 	 *
-	 * @param teamQuery
+	 * @param teamQueryRequest
 	 * @param request
 	 * @return
 	 */
 	@GetMapping("/list/my/join")
-	public BaseResponse<List<TeamUserVO>> listMyJoinTeams(TeamQuery teamQuery, HttpServletRequest request) {
-		if (teamQuery == null) {
+	public BaseResponse<List<TeamUserVO>> listMyJoinTeams(TeamQueryRequest teamQueryRequest, HttpServletRequest request) {
+		if (teamQueryRequest == null) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
 		User loginUser = userService.getLoginUser(request);
@@ -275,26 +275,26 @@ public class TeamController {
 		Map<Long, List<UserTeam>> listMap = userTeamList.stream().collect(Collectors.groupingBy(UserTeam::getTeamId));
 		
 		ArrayList<Long> idList = new ArrayList<>(listMap.keySet());
-		teamQuery.setIdList(idList);
-		List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+		teamQueryRequest.setIdList(idList);
+		List<TeamUserVO> teamList = teamService.listTeams(teamQueryRequest, true);
 		return ResultUtils.success(teamList);
 	}
 	
 	/**
 	 * 获取我创建的队伍
 	 *
-	 * @param teamQuery
+	 * @param teamQueryRequest
 	 * @param request
 	 * @return
 	 */
 	@GetMapping("/list/my/create")
-	public BaseResponse<List<TeamUserVO>> listMyCreateTeams(TeamQuery teamQuery, HttpServletRequest request) {
-		if (teamQuery == null) {
+	public BaseResponse<List<TeamUserVO>> listMyCreateTeams(TeamQueryRequest teamQueryRequest, HttpServletRequest request) {
+		if (teamQueryRequest == null) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
 		User loginUser = userService.getLoginUser(request);
-		teamQuery.setUserId(loginUser.getId());
-		List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+		teamQueryRequest.setUserId(loginUser.getId());
+		List<TeamUserVO> teamList = teamService.listTeams(teamQueryRequest, true);
 		return ResultUtils.success(teamList);
 	}
 	

@@ -1,6 +1,6 @@
 package com.stephen.popcorn.service;
 
-import com.stephen.popcorn.util.AlgorithmUtils;
+import com.stephen.popcorn.utils.AlgorithmUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

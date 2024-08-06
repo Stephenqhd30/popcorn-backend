@@ -17,12 +17,12 @@ public interface UserConstant {
 	/**
 	 * DEFAULT_ROLE 默认权限
 	 */
-	Integer DEFAULT_ROLE = 0;
+	String DEFAULT_ROLE = "user";
 	
 	/**
 	 * ADMIN_ROLE 管理员权限
 	 */
-	Integer ADMIN_ROLE = 1;
+	String ADMIN_ROLE = "admin";
 	
 	
 }
