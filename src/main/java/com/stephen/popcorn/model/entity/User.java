@@ -37,6 +37,11 @@ public class User implements Serializable {
 	private String userName;
 	
 	/**
+	 * 用户性别（0-男 ，1-女，2-保密）
+	 */
+	private String userGender;
+	
+	/**
 	 * 用户头像
 	 */
 	private String userAvatar;
@@ -60,6 +65,11 @@ public class User implements Serializable {
 	 * 手机号码
 	 */
 	private String userPhone;
+	
+	/**
+	 * 标签列表
+	 */
+	private String tags;
 	
 	/**
 	 * 创建时间

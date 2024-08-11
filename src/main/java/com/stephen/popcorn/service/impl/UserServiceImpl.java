@@ -1,6 +1,7 @@
 package com.stephen.popcorn.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
@@ -17,6 +18,7 @@ import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.UserService;
 import com.stephen.popcorn.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 	
+	/**
+	 * 用户注册
+	 *
+	 * @param userAccount   用户账户
+	 * @param userPassword  用户密码
+	 * @param checkPassword 校验密码
+	 * @return
+	 */
 	@Override
 	public long userRegister(String userAccount, String userPassword, String checkPassword) {
 		// 1. 校验
@@ -77,6 +87,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		}
 	}
 	
+	/**
+	 * 用户登录
+	 *
+	 * @param userAccount  用户账户
+	 * @param userPassword 用户密码
+	 * @param request
+	 * @return
+	 */
 	@Override
 	public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
 		// 1. 校验
@@ -182,26 +200,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		return true;
 	}
 	
+	/**
+	 * 获取当前登录用户的VO包装类
+	 *
+	 * @param user 用户
+	 * @return 当前用户的VO封装类
+	 */
 	@Override
 	public LoginUserVO getLoginUserVO(User user) {
 		if (user == null) {
 			return null;
 		}
+		// TODO 需要将包装类进行转换
 		LoginUserVO loginUserVO = new LoginUserVO();
 		BeanUtils.copyProperties(user, loginUserVO);
+		loginUserVO.setTagList(JSONUtil.toList(user.getTags(), String.class));
 		return loginUserVO;
 	}
 	
+	/**
+	 * 获取当前登录用户
+	 *
+	 * @param user
+	 * @return
+	 */
 	@Override
 	public UserVO getUserVO(User user) {
 		if (user == null) {
 			return null;
 		}
+		// TODO 有的包装类需要进行转化
 		UserVO userVO = new UserVO();
 		BeanUtils.copyProperties(user, userVO);
+		userVO.setTagList(JSONUtil.toList(user.getTags(), String.class));
 		return userVO;
 	}
 	
+	/**
+	 * 获取用户VO包装类用户列表
+	 *
+	 * @param userList
+	 * @return
+	 */
 	@Override
 	public List<UserVO> getUserVO(List<User> userList) {
 		if (CollUtil.isEmpty(userList)) {
@@ -210,6 +250,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		return userList.stream().map(this::getUserVO).collect(Collectors.toList());
 	}
 	
+	/**
+	 * 查询
+	 *
+	 * @param userQueryRequest
+	 * @return
+	 */
 	@Override
 	public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
 		if (userQueryRequest == null) {
@@ -219,17 +265,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		String userName = userQueryRequest.getUserName();
 		String userProfile = userQueryRequest.getUserProfile();
 		String userRole = userQueryRequest.getUserRole();
-		String sortField = userQueryRequest.getSortField();
-		String sortOrder = userQueryRequest.getSortOrder();
 		String userEmail = userQueryRequest.getUserEmail();
 		String userPhone = userQueryRequest.getUserPhone();
+		Integer userGender = userQueryRequest.getUserGender();
+		String tags = userQueryRequest.getTags();
+		String sortField = userQueryRequest.getSortField();
+		String sortOrder = userQueryRequest.getSortOrder();
+		
 		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+		
+		// 精准查询
 		queryWrapper.eq(id != null, "id", id);
 		queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
+		queryWrapper.eq(ObjectUtils.isNotEmpty(userGender), "userRole", userRole);
+		
+		// 模糊查询
 		queryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
 		queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
 		queryWrapper.like(StringUtils.isNotBlank(userEmail), "userEmail", userEmail);
 		queryWrapper.like(StringUtils.isNotBlank(userPhone), "userPhone", userPhone);
+		queryWrapper.like(StringUtils.isNotBlank(tags), "tags", tags);
 		queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
 				sortField);
 		return queryWrapper;

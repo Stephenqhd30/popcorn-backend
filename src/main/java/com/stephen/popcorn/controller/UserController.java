@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static com.stephen.popcorn.constant.SaltConstant.SALT;
@@ -169,11 +168,13 @@ public class UserController {
 	 * @return
 	 */
 	@PostMapping("/update")
+	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 	public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
 	                                        HttpServletRequest request) {
 		if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
+		// TODO 进行实体类的转换
 		User user = new User();
 		BeanUtils.copyProperties(userUpdateRequest, user);
 		boolean result = userService.updateById(user);

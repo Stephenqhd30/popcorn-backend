@@ -8,22 +8,22 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 用户角色枚举
+ * 用户性别枚举
  *
  * @author stephen qiu
  */
 @Getter
-public enum UserRoleEnum {
+public enum UserGenderEnum {
 	
-	USER("用户", "user"),
-	ADMIN("管理员", "admin"),
-	BAN("被封号", "ban");
+	MALE("男", 0),
+	FEMALE("管理员", 1),
+	SECURITY("被封号", 2);
 	
 	private final String text;
 	
-	private final String value;
+	private final int value;
 	
-	UserRoleEnum(String text, String value) {
+	UserGenderEnum(String text, int value) {
 		this.text = text;
 		this.value = value;
 	}
@@ -33,7 +33,7 @@ public enum UserRoleEnum {
 	 *
 	 * @return
 	 */
-	public static List<String> getValues() {
+	public static List<Integer> getValues() {
 		return Arrays.stream(values()).map(item -> item.value).collect(Collectors.toList());
 	}
 	
@@ -43,12 +43,12 @@ public enum UserRoleEnum {
 	 * @param value
 	 * @return
 	 */
-	public static UserRoleEnum getEnumByValue(String value) {
+	public static UserGenderEnum getEnumByValue(int value) {
 		if (ObjectUtils.isEmpty(value)) {
 			return null;
 		}
-		for (UserRoleEnum anEnum : UserRoleEnum.values()) {
-			if (anEnum.value.equals(value)) {
+		for (UserGenderEnum anEnum : UserGenderEnum.values()) {
+			if (anEnum.value == value) {
 				return anEnum;
 			}
 		}

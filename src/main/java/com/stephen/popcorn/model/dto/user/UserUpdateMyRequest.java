@@ -3,6 +3,7 @@ package com.stephen.popcorn.model.dto.user;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 用户更新个人信息请求
@@ -37,5 +38,15 @@ public class UserUpdateMyRequest implements Serializable {
 	 * 手机号码
 	 */
 	private String userPhone;
+	
+	/**
+	 * 用户性别（0-男 ，1-女，2-保密）
+	 */
+	private Integer userGender;
+	
+	/**
+	 * 标签列表
+	 */
+	private String tags;
 
 }

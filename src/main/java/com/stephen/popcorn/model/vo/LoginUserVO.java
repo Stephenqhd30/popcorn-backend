@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 已登录用户视图（脱敏）
@@ -48,6 +49,16 @@ public class LoginUserVO implements Serializable {
 	 * 手机号码
 	 */
 	private String userPhone;
+	
+	/**
+	 * 用户性别（0-男 ，1-女，2-保密）
+	 */
+	private Integer userGender;
+	
+	/**
+	 * 标签列表
+	 */
+	private List<String> tagList;
 	
 	/**
 	 * 创建时间
