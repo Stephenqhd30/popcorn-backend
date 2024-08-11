@@ -128,9 +128,8 @@ public class UserController {
 	@PostMapping("/add")
 	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 	public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
-		if (userAddRequest == null) {
-			throw new BusinessException(ErrorCode.PARAMS_ERROR);
-		}
+		ThrowUtils.throwIf(userAddRequest == null, ErrorCode.PARAMS_ERROR);
+		// todo 在此处将实体类和 DTO 进行转换
 		User user = new User();
 		BeanUtils.copyProperties(userAddRequest, user);
 		// 默认密码 12345678
@@ -262,19 +261,19 @@ public class UserController {
 	/**
 	 * 更新个人信息
 	 *
-	 * @param userUpdateMyRequest
+	 * @param userEditRequest
 	 * @param request
 	 * @return
 	 */
 	@PostMapping("/update/my")
-	public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
+	public BaseResponse<Boolean> updateMyUser(@RequestBody UserEditRequest userEditRequest,
 	                                          HttpServletRequest request) {
-		if (userUpdateMyRequest == null) {
+		if (userEditRequest == null) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
 		User loginUser = userService.getLoginUser(request);
 		User user = new User();
-		BeanUtils.copyProperties(userUpdateMyRequest, user);
+		BeanUtils.copyProperties(userEditRequest, user);
 		user.setId(loginUser.getId());
 		boolean result = userService.updateById(user);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);

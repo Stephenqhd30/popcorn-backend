@@ -3,7 +3,6 @@ package com.stephen.popcorn.model.dto.user;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 用户更新个人信息请求
@@ -11,7 +10,7 @@ import java.util.List;
  * @author stephen qiu
  */
 @Data
-public class UserUpdateMyRequest implements Serializable {
+public class UserEditRequest implements Serializable {
 	
 	private static final long serialVersionUID = 402901746420005392L;
 	/**

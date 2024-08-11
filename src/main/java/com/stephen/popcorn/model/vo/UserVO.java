@@ -1,6 +1,10 @@
 package com.stephen.popcorn.model.vo;
 
+import cn.hutool.json.JSONUtil;
+import com.stephen.popcorn.model.entity.Tag;
+import com.stephen.popcorn.model.entity.User;
 import lombok.Data;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -23,7 +27,6 @@ public class UserVO implements Serializable {
 	 * 用户昵称
 	 */
 	private String userName;
-	
 	
 	
 	/**
@@ -63,4 +66,36 @@ public class UserVO implements Serializable {
 	private Date updateTime;
 	
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * 封装类转对象
+	 *
+	 * @param userVO
+	 * @return
+	 */
+	public static User voToObj(UserVO userVO) {
+		if (userVO == null) {
+			return null;
+		}
+		User user = new User();
+		BeanUtils.copyProperties(userVO, user);
+		user.setTags(JSONUtil.toJsonStr(userVO.getTagList()));
+		return user;
+	}
+	
+	/**
+	 * 对象转封装类
+	 *
+	 * @param user
+	 * @return
+	 */
+	public static UserVO objToVo(User user) {
+		if (user == null) {
+			return null;
+		}
+		UserVO userVO = new UserVO();
+		BeanUtils.copyProperties(user, userVO);
+		userVO.setTagList(JSONUtil.toList(user.getTags(), String.class));
+		return userVO;
+	}
 }

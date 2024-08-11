@@ -268,7 +268,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		String userEmail = userQueryRequest.getUserEmail();
 		String userPhone = userQueryRequest.getUserPhone();
 		Integer userGender = userQueryRequest.getUserGender();
-		String tags = userQueryRequest.getTags();
+		List<String> tagList = userQueryRequest.getTagList();
 		String sortField = userQueryRequest.getSortField();
 		String sortOrder = userQueryRequest.getSortOrder();
 		
@@ -278,13 +278,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		queryWrapper.eq(id != null, "id", id);
 		queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
 		queryWrapper.eq(ObjectUtils.isNotEmpty(userGender), "userRole", userRole);
-		
+		// JSON 数组查询
+		if (CollUtil.isNotEmpty(tagList)) {
+			for (String tag : tagList) {
+				queryWrapper.like("tags", "\"" + tag + "\"");
+			}
+		}
 		// 模糊查询
 		queryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
 		queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
 		queryWrapper.like(StringUtils.isNotBlank(userEmail), "userEmail", userEmail);
 		queryWrapper.like(StringUtils.isNotBlank(userPhone), "userPhone", userPhone);
-		queryWrapper.like(StringUtils.isNotBlank(tags), "tags", tags);
 		queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
 				sortField);
 		return queryWrapper;

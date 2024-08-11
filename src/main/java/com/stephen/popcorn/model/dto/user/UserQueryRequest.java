@@ -55,6 +55,6 @@ public class UserQueryRequest extends PageRequest implements Serializable {
 	/**
 	 * 标签列表
 	 */
-	private String tags;
+	private List<String> tagList;
 	
 }
