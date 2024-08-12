@@ -39,7 +39,7 @@ public class User implements Serializable {
 	/**
 	 * 用户性别（0-男 ，1-女，2-保密）
 	 */
-	private String userGender;
+	private Integer userGender;
 	
 	/**
 	 * 用户头像
