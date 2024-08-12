@@ -1,5 +1,6 @@
 package com.stephen.popcorn.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.stephen.popcorn.annotation.AuthCheck;
@@ -286,9 +287,9 @@ public class UserController {
 	/**
 	 * 更新个人信息
 	 *
-	 * @param userEditRequest
-	 * @param request
-	 * @return
+	 * @param userEditRequest 用户编辑条件
+	 * @param request 要求
+	 * @return  {@link BaseResponse}<{@link Boolean}>
 	 */
 	@PostMapping("/update/my")
 	public BaseResponse<Boolean> updateMyUser(@RequestBody UserEditRequest userEditRequest,
@@ -300,7 +301,7 @@ public class UserController {
 		// todo 在此处将实体类和 DTO 进行转换
 		User user = new User();
 		BeanUtils.copyProperties(userEditRequest, user);
-		user.setTags(JSONUtil.toJsonStr(userEditRequest.getTags()));
+		user.setTags(JSONUtil.toJsonStr(userEditRequest.getTagList()));
 		user.setId(loginUser.getId());
 		boolean result = userService.updateById(user);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);

@@ -1,7 +1,10 @@
 package com.stephen.popcorn.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.constant.CommonConstant;
@@ -23,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+	
 	/**
 	 * 校验数据
 	 *
@@ -223,8 +226,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		if (user == null) {
 			return null;
 		}
+		// todo 在此处将实体类和 DTO 进行转换
 		LoginUserVO loginUserVO = new LoginUserVO();
 		BeanUtils.copyProperties(user, loginUserVO);
+		loginUserVO.setTagList(JSONUtil.toList(user.getTags(), String.class));
 		return loginUserVO;
 	}
 	
@@ -245,9 +250,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 	
 	@Override
 	public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
-		if (userQueryRequest == null) {
-			throw new BusinessException(ErrorCode.PARAMS_ERROR, "请求参数为空");
-		}
+		ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR, "请求参数为空");
+		
+		// 获取需要查询的数据
 		Long id = userQueryRequest.getId();
 		String userName = userQueryRequest.getUserName();
 		String userProfile = userQueryRequest.getUserProfile();

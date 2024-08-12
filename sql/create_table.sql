@@ -22,7 +22,7 @@ create table user
     userProfile  varchar(512)                           null comment '用户简介',
     userRole     varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
     userEmail    varchar(256)                           null comment '用户邮箱',
-    tags         int                                    null comment '标签列表',
+    tags         varchar(1024)                          null comment '标签列表',
     createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete     tinyint      default 0                 not null comment '是否删除'
@@ -42,3 +42,35 @@ create table tag
     isDelete   tinyint  default 0                 not null comment '是否删除'
 )
     comment '标签表';
+
+-- 队伍表
+create table team
+(
+    id           bigint auto_increment comment 'id'
+        primary key,
+    teamName     varchar(256)                       not null comment '队伍名称',
+    teamProfile  varchar(1024)                      null comment '队伍简介',
+    coverImage   varchar(256)                       null comment '队伍图标',
+    expireTime   datetime                           null comment '队伍过期时间',
+    userId       bigint                             not null comment '创建人id',
+    status       tinyint                            not null comment '队伍状态（0-公开,1-私密,2-需要密码）',
+    teamPassword varchar(256)                       null comment '队伍密码',
+    createTime   datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime   datetime default CURRENT_TIMESTAMP not null comment '更新时间',
+    isDelete     tinyint  default 0                 not null comment '是否删除'
+)
+    comment '队伍表';
+
+-- 队伍-用户表
+create table team_user
+(
+    id         bigint auto_increment comment 'id'
+        primary key,
+    userId     bigint                             not null comment '用户id',
+    teamId     bigint                             not null comment '队伍id',
+    joinTime   datetime default CURRENT_TIMESTAMP not null comment '加入时间',
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime datetime default CURRENT_TIMESTAMP not null comment '更新时间',
+    isDelete   tinyint  default 0                 not null comment '是否删除'
+)
+    comment '队伍-用户表';

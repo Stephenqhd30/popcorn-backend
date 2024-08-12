@@ -3,6 +3,7 @@ package com.stephen.popcorn.model.dto.user;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 用户更新个人信息请求
@@ -46,6 +47,6 @@ public class UserEditRequest implements Serializable {
 	/**
 	 * 标签列表
 	 */
-	private String tags;
+	private List<String> tagList;
 
 }

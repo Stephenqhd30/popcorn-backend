@@ -170,4 +170,15 @@ public class RegexUtils {
 		return Pattern.matches(regex, ipAddress);
 	}
 	
+	/**
+	 * 匹配IP地址(简单匹配，格式，如：192.168.1.1，127.0.0.1，没有匹配IP段的大小)
+	 *
+	 * @param ipAddress IPv4标准地址
+	 * @return 验证成功返回true，验证失败返回false
+	 */
+	public static boolean checkPassword(String password) {
+		String regex = "[1-9](\\d{1,2})?\\.(0|([1-9](\\d{1,2})?))\\.(0|([1-9](\\d{1,2})?))\\.(0|([1-9](\\d{1,2})?))";
+		return Pattern.matches(regex, password);
+	}
+	
 }

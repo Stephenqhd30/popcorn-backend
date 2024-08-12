@@ -8,14 +8,14 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * 标签表
+ * 队伍表
  *
  * @author stephen qiu
- * @TableName tag
+ * @TableName team
  */
-@TableName(value = "tag")
+@TableName(value = "team")
 @Data
-public class Tag implements Serializable {
+public class Team implements Serializable {
 	/**
 	 * id
 	 */
@@ -23,24 +23,39 @@ public class Tag implements Serializable {
 	private Long id;
 	
 	/**
-	 * 标签名称
+	 * 队伍名称
 	 */
-	private String tagName;
+	private String teamName;
 	
 	/**
-	 * 用户id
+	 * 队伍简介
+	 */
+	private String teamProfile;
+	
+	/**
+	 * 队伍图标
+	 */
+	private String coverImage;
+	
+	/**
+	 * 队伍过期时间
+	 */
+	private Date expireTime;
+	
+	/**
+	 * 创建人id
 	 */
 	private Long userId;
 	
 	/**
-	 * 父标签id
+	 * 队伍状态（0-公开,1-私密,2-需要密码）
 	 */
-	private Long parentId;
+	private Integer status;
 	
 	/**
-	 * 0-不是父标签，1-是父标签
+	 * 队伍密码
 	 */
-	private Integer isParent;
+	private String teamPassword;
 	
 	/**
 	 * 创建时间
