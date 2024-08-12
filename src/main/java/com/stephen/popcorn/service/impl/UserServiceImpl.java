@@ -1,7 +1,6 @@
 package com.stephen.popcorn.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
@@ -16,13 +15,15 @@ import com.stephen.popcorn.model.enums.UserRoleEnum;
 import com.stephen.popcorn.model.vo.LoginUserVO;
 import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.UserService;
+import com.stephen.popcorn.utils.RegexUtils;
 import com.stephen.popcorn.utils.SqlUtils;
+import com.stephen.popcorn.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -38,15 +39,40 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-	
 	/**
-	 * 用户注册
+	 * 校验数据
 	 *
-	 * @param userAccount   用户账户
-	 * @param userPassword  用户密码
-	 * @param checkPassword 校验密码
-	 * @return
+	 * @param user user
+	 * @param add  对创建的数据进行校验
 	 */
+	@Override
+	public void validUser(User user, boolean add) {
+		ThrowUtils.throwIf(user == null, ErrorCode.PARAMS_ERROR);
+		// todo 从对象中取值
+		String userAccount = user.getUserAccount();
+		String userPassword = user.getUserPassword();
+		String userName = user.getUserName();
+		String userProfile = user.getUserProfile();
+		String userEmail = user.getUserEmail();
+		String userPhone = user.getUserPhone();
+		
+		// 创建数据时，参数不能为空
+		if (add) {
+			// todo 补充校验规则
+			ThrowUtils.throwIf(StringUtils.isBlank(userAccount), ErrorCode.PARAMS_ERROR, "账号不能为空");
+			ThrowUtils.throwIf(StringUtils.isBlank(userPassword), ErrorCode.PARAMS_ERROR, "密码不能为空");
+			ThrowUtils.throwIf(StringUtils.isBlank(userName), ErrorCode.PARAMS_ERROR, "用户名不能为空");
+		}
+		// 修改数据时，有参数则校验
+		// todo 补充校验规则
+		if (StringUtils.isNotBlank(userAccount)) {
+			ThrowUtils.throwIf(userAccount.length() < 4 || userAccount.length() > 20, ErrorCode.PARAMS_ERROR, "账号不能小于4位，不能多于20位");
+			ThrowUtils.throwIf(userProfile.length() > 50, ErrorCode.PARAMS_ERROR, "用户简介不能多余50字");
+			ThrowUtils.throwIf(RegexUtils.checkEmail(userEmail), ErrorCode.PARAMS_ERROR, "用户邮箱有误");
+			ThrowUtils.throwIf(RegexUtils.checkMobile(userPhone), ErrorCode.PARAMS_ERROR, "用户手机号码有误");
+		}
+	}
+	
 	@Override
 	public long userRegister(String userAccount, String userPassword, String checkPassword) {
 		// 1. 校验
@@ -87,14 +113,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		}
 	}
 	
-	/**
-	 * 用户登录
-	 *
-	 * @param userAccount  用户账户
-	 * @param userPassword 用户密码
-	 * @param request
-	 * @return
-	 */
 	@Override
 	public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
 		// 1. 校验
@@ -200,62 +218,31 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		return true;
 	}
 	
-	/**
-	 * 获取当前登录用户的VO包装类
-	 *
-	 * @param user 用户
-	 * @return 当前用户的VO封装类
-	 */
 	@Override
 	public LoginUserVO getLoginUserVO(User user) {
 		if (user == null) {
 			return null;
 		}
-		// TODO 需要将包装类进行转换
 		LoginUserVO loginUserVO = new LoginUserVO();
 		BeanUtils.copyProperties(user, loginUserVO);
-		loginUserVO.setTagList(JSONUtil.toList(user.getTags(), String.class));
 		return loginUserVO;
 	}
 	
-	/**
-	 * 获取当前登录用户
-	 *
-	 * @param user
-	 * @return
-	 */
 	@Override
-	public UserVO getUserVO(User user) {
-		if (user == null) {
-			return null;
-		}
-		// TODO 有的包装类需要进行转化
-		UserVO userVO = new UserVO();
-		BeanUtils.copyProperties(user, userVO);
-		userVO.setTagList(JSONUtil.toList(user.getTags(), String.class));
-		return userVO;
+	public UserVO getUserVO(User user, HttpServletRequest request) {
+		// 对象转封装类
+		return UserVO.objToVo(user);
 	}
 	
-	/**
-	 * 获取用户VO包装类用户列表
-	 *
-	 * @param userList
-	 * @return
-	 */
+	
 	@Override
-	public List<UserVO> getUserVO(List<User> userList) {
+	public List<UserVO> getUserVO(List<User> userList, HttpServletRequest request) {
 		if (CollUtil.isEmpty(userList)) {
 			return new ArrayList<>();
 		}
-		return userList.stream().map(this::getUserVO).collect(Collectors.toList());
+		return userList.stream().map(user -> getUserVO(user, request)).collect(Collectors.toList());
 	}
 	
-	/**
-	 * 查询
-	 *
-	 * @param userQueryRequest
-	 * @return
-	 */
 	@Override
 	public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
 		if (userQueryRequest == null) {
@@ -265,25 +252,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		String userName = userQueryRequest.getUserName();
 		String userProfile = userQueryRequest.getUserProfile();
 		String userRole = userQueryRequest.getUserRole();
-		String userEmail = userQueryRequest.getUserEmail();
-		String userPhone = userQueryRequest.getUserPhone();
-		Integer userGender = userQueryRequest.getUserGender();
 		List<String> tagList = userQueryRequest.getTagList();
 		String sortField = userQueryRequest.getSortField();
 		String sortOrder = userQueryRequest.getSortOrder();
-		
+		String userEmail = userQueryRequest.getUserEmail();
+		String userPhone = userQueryRequest.getUserPhone();
 		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 		
 		// 精准查询
 		queryWrapper.eq(id != null, "id", id);
 		queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
-		queryWrapper.eq(ObjectUtils.isNotEmpty(userGender), "userRole", userRole);
+		
 		// JSON 数组查询
 		if (CollUtil.isNotEmpty(tagList)) {
 			for (String tag : tagList) {
 				queryWrapper.like("tags", "\"" + tag + "\"");
 			}
 		}
+		
 		// 模糊查询
 		queryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
 		queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);

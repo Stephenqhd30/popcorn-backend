@@ -1,5 +1,6 @@
 package com.stephen.popcorn.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.stephen.popcorn.annotation.AuthCheck;
 import com.stephen.popcorn.common.BaseResponse;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static com.stephen.popcorn.constant.SaltConstant.SALT;
@@ -42,6 +44,7 @@ public class UserController {
 	@Resource
 	private UserService userService;
 	
+	
 	// region 登录相关
 	
 	/**
@@ -52,9 +55,8 @@ public class UserController {
 	 */
 	@PostMapping("/register")
 	public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
-		if (userRegisterRequest == null) {
-			throw new BusinessException(ErrorCode.PARAMS_ERROR);
-		}
+		ThrowUtils.throwIf(userRegisterRequest == null, ErrorCode.PARAMS_ERROR);
+		// 获取请求参数
 		String userAccount = userRegisterRequest.getUserAccount();
 		String userPassword = userRegisterRequest.getUserPassword();
 		String checkPassword = userRegisterRequest.getCheckPassword();
@@ -132,14 +134,21 @@ public class UserController {
 		// todo 在此处将实体类和 DTO 进行转换
 		User user = new User();
 		BeanUtils.copyProperties(userAddRequest, user);
+		user.setTags(JSONUtil.toJsonStr(userAddRequest.getTagList()));
+		// 数据校验
+		userService.validUser(user, true);
+		// todo 填充默认值
 		// 默认密码 12345678
 		String encryptPassword = DigestUtils.md5DigestAsHex((SALT + DEFAULT_PASSWORD).getBytes());
-		// 设置一个默认的头像
 		user.setUserPassword(encryptPassword);
+		// 设置一个默认的头像
 		user.setUserAvatar(USER_AVATAR);
+		// 写入数据库
 		boolean result = userService.save(user);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
-		return ResultUtils.success(user.getId());
+		// 返回新写入的数据 id
+		long newTagId = user.getId();
+		return ResultUtils.success(newTagId);
 	}
 	
 	/**
@@ -150,13 +159,20 @@ public class UserController {
 	 * @return
 	 */
 	@PostMapping("/delete")
-	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 	public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
-		if (deleteRequest == null || deleteRequest.getId() <= 0) {
-			throw new BusinessException(ErrorCode.PARAMS_ERROR);
+		ThrowUtils.throwIf(deleteRequest == null || deleteRequest.getId() <= 0, ErrorCode.PARAMS_ERROR);
+		User user = userService.getLoginUser(request);
+		long id = deleteRequest.getId();
+		User oldUser = userService.getById(id);
+		ThrowUtils.throwIf(oldUser == null, ErrorCode.NOT_FOUND_ERROR);
+		// 仅本人或管理员可删除
+		if (!oldUser.getId().equals(user.getId()) && !userService.isAdmin(request)) {
+			throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
 		}
-		boolean b = userService.removeById(deleteRequest.getId());
-		return ResultUtils.success(b);
+		// 操作数据库
+		boolean result = userService.removeById(id);
+		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+		return ResultUtils.success(true);
 	}
 	
 	/**
@@ -167,15 +183,22 @@ public class UserController {
 	 * @return
 	 */
 	@PostMapping("/update")
-	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 	public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
 	                                        HttpServletRequest request) {
-		if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
+		if (userUpdateRequest == null || userUpdateRequest.getId() <= 0) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
-		// TODO 进行实体类的转换
+		// todo 在此处将实体类和 DTO 进行转换
 		User user = new User();
 		BeanUtils.copyProperties(userUpdateRequest, user);
+		user.setTags(JSONUtil.toJsonStr(userUpdateRequest.getTagList()));
+		// 数据校验
+		userService.validUser(user, false);
+		// 判断是否存在
+		long id = userUpdateRequest.getId();
+		User oldUser = userService.getById(id);
+		ThrowUtils.throwIf(oldUser == null, ErrorCode.NOT_FOUND_ERROR);
+		// 操作数据库
 		boolean result = userService.updateById(user);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
 		return ResultUtils.success(true);
@@ -184,16 +207,14 @@ public class UserController {
 	/**
 	 * 根据 id 获取用户（仅管理员）
 	 *
-	 * @param id 用户id
+	 * @param id      用户id
 	 * @param request request
 	 * @return
 	 */
 	@GetMapping("/get")
 	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 	public BaseResponse<User> getUserById(long id, HttpServletRequest request) {
-		if (id <= 0) {
-			throw new BusinessException(ErrorCode.PARAMS_ERROR);
-		}
+		ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
 		User user = userService.getById(id);
 		ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
 		return ResultUtils.success(user);
@@ -202,16 +223,20 @@ public class UserController {
 	/**
 	 * 根据 id 获取包装类
 	 *
-	 * @param id 用户id
+	 * @param id      用户id
 	 * @param request request
 	 * @return 查询得到的用户包装类
 	 */
 	@GetMapping("/get/vo")
 	public BaseResponse<UserVO> getUserVOById(long id, HttpServletRequest request) {
-		BaseResponse<User> response = getUserById(id, request);
-		User user = response.getData();
-		return ResultUtils.success(userService.getUserVO(user));
+		ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+		// 查询数据库
+		User user = userService.getById(id);
+		ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
+		// 获取封装类
+		return ResultUtils.success(userService.getUserVO(user, request));
 	}
+	
 	
 	/**
 	 * 分页获取用户列表（仅管理员）
@@ -235,7 +260,7 @@ public class UserController {
 	 * 分页获取用户封装列表
 	 *
 	 * @param userQueryRequest 用户查询请求
-	 * @param request request
+	 * @param request          request
 	 * @return
 	 */
 	@PostMapping("/list/page/vo")
@@ -251,7 +276,7 @@ public class UserController {
 		Page<User> userPage = userService.page(new Page<>(current, size),
 				userService.getQueryWrapper(userQueryRequest));
 		Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
-		List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
+		List<UserVO> userVO = userService.getUserVO(userPage.getRecords(), request);
 		userVOPage.setRecords(userVO);
 		return ResultUtils.success(userVOPage);
 	}
@@ -272,8 +297,10 @@ public class UserController {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
 		User loginUser = userService.getLoginUser(request);
+		// todo 在此处将实体类和 DTO 进行转换
 		User user = new User();
 		BeanUtils.copyProperties(userEditRequest, user);
+		user.setTags(JSONUtil.toJsonStr(userEditRequest.getTags()));
 		user.setId(loginUser.getId());
 		boolean result = userService.updateById(user);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
