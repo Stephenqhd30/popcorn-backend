@@ -52,6 +52,16 @@ public class UserVO implements Serializable {
 	private Integer userGender;
 	
 	/**
+	 * 用户邮箱
+	 */
+	private String userEmail;
+	
+	/**
+	 * 手机号码
+	 */
+	private String userPhone;
+	
+	/**
 	 * 标签列表
 	 */
 	private List<String> tagList;

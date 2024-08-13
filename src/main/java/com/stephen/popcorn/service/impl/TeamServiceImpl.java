@@ -53,12 +53,14 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 		String teamProfile = team.getTeamProfile();
 		String teamPassword = team.getTeamPassword();
 		Integer status = team.getStatus();
+		Integer maxLength = team.getMaxLength();
 		
 		// 创建数据时，参数不能为空
 		if (add) {
 			// todo 补充校验规则
 			ThrowUtils.throwIf(StringUtils.isBlank(teamName), ErrorCode.PARAMS_ERROR, "队伍名称不能为空");
 			ThrowUtils.throwIf(TeamStatusEnum.getEnumByValue(status) == null, ErrorCode.PARAMS_ERROR, "队伍状态异常");
+			ThrowUtils.throwIf(maxLength > 10, ErrorCode.PARAMS_ERROR, "队伍最多加入10人");
 		}
 		// 修改数据时，有参数则校验
 		// todo 补充校验规则
@@ -68,7 +70,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 		if (StringUtils.isNotBlank(teamProfile)) {
 			ThrowUtils.throwIf(teamProfile.length() > 50, ErrorCode.PARAMS_ERROR, "队伍简介过长");
 		}
-		if (Objects.equals(status, TeamStatusEnum.NEED_PASSWORD.getValue())) {
+		if (Objects.equals(status, TeamStatusEnum.SECURITY.getValue())) {
 			ThrowUtils.throwIf(teamPassword == null, ErrorCode.PARAMS_ERROR, "密码的长度需要为6位");
 			if (StringUtils.isNotBlank(teamPassword)) {
 				ThrowUtils.throwIf(teamPassword.length() != 6, ErrorCode.PARAMS_ERROR, "密码的长度需要为6位");

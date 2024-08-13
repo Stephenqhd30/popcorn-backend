@@ -38,7 +38,7 @@ public class TeamQueryRequest extends PageRequest implements Serializable {
 	private Long userId;
 	
 	/**
-	 * 队伍状态（0-公开,1-私密,2-需要密码）
+	 * 队伍状态（0-公开,1-私密）
 	 */
 	private Integer status;
 	

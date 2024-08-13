@@ -18,8 +18,7 @@ import java.util.stream.Collectors;
 public enum TeamStatusEnum {
 	
 	PUBLIC("公开", 0),
-	SECURITY("私密", 1),
-	NEED_PASSWORD("需要密码", 2);
+	SECURITY("私密", 1);
 	
 	private final String text;
 	

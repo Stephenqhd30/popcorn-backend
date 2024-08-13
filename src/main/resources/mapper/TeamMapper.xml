@@ -12,6 +12,7 @@
             <result property="expireTime" column="expireTime" jdbcType="TIMESTAMP"/>
             <result property="userId" column="userId" jdbcType="BIGINT"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="maxLength" column="maxLength" jdbcType="INTEGER"/>
             <result property="teamPassword" column="teamPassword" jdbcType="VARCHAR"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
@@ -20,7 +21,7 @@
 
     <sql id="Base_Column_List">
         id,teamName,teamProfile,
-        coverImage,expireTime,userId,
+        coverImage,expireTime,userId,maxLength,
         status,teamPassword,createTime,
         updateTime,isDelete
     </sql>
