@@ -57,11 +57,6 @@ public class TeamVO implements Serializable {
     private Integer status;
     
     /**
-     * 队伍密码
-     */
-    private String teamPassword;
-    
-    /**
      * 创建时间
      */
     private Date createTime;

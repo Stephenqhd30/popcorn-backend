@@ -18,6 +18,7 @@ import java.util.List;
 @Data
 public class UserVO implements Serializable {
 	
+	private static final long serialVersionUID = -3280494130806111730L;
 	/**
 	 * id
 	 */
@@ -64,8 +65,6 @@ public class UserVO implements Serializable {
 	 * 更新时间
 	 */
 	private Date updateTime;
-	
-	private static final long serialVersionUID = 1L;
 	
 	/**
 	 * 封装类转对象

@@ -14,6 +14,7 @@ import com.stephen.popcorn.exception.BusinessException;
 import com.stephen.popcorn.mapper.UserMapper;
 import com.stephen.popcorn.model.dto.user.UserQueryRequest;
 import com.stephen.popcorn.model.entity.User;
+import com.stephen.popcorn.model.enums.UserGenderEnum;
 import com.stephen.popcorn.model.enums.UserRoleEnum;
 import com.stephen.popcorn.model.vo.LoginUserVO;
 import com.stephen.popcorn.model.vo.UserVO;
@@ -22,6 +23,7 @@ import com.stephen.popcorn.utils.RegexUtils;
 import com.stephen.popcorn.utils.SqlUtils;
 import com.stephen.popcorn.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -56,6 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		String userPassword = user.getUserPassword();
 		String userName = user.getUserName();
 		String userProfile = user.getUserProfile();
+		Integer userGender = user.getUserGender();
 		String userEmail = user.getUserEmail();
 		String userPhone = user.getUserPhone();
 		
@@ -70,9 +73,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		// todo 补充校验规则
 		if (StringUtils.isNotBlank(userAccount)) {
 			ThrowUtils.throwIf(userAccount.length() < 4 || userAccount.length() > 20, ErrorCode.PARAMS_ERROR, "账号不能小于4位，不能多于20位");
+		}
+		if (StringUtils.isNotBlank(userProfile)) {
 			ThrowUtils.throwIf(userProfile.length() > 50, ErrorCode.PARAMS_ERROR, "用户简介不能多余50字");
+		}
+		if (StringUtils.isNotBlank(userEmail)) {
 			ThrowUtils.throwIf(RegexUtils.checkEmail(userEmail), ErrorCode.PARAMS_ERROR, "用户邮箱有误");
+		}
+		if (StringUtils.isNotBlank(userPhone)) {
 			ThrowUtils.throwIf(RegexUtils.checkMobile(userPhone), ErrorCode.PARAMS_ERROR, "用户手机号码有误");
+		}
+		if (ObjectUtils.isNotEmpty(userGender)) {
+			ThrowUtils.throwIf(UserGenderEnum.getEnumByValue(userGender) == null, ErrorCode.PARAMS_ERROR, "性别填写有误");
 		}
 	}
 	
@@ -259,6 +271,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		String userRole = userQueryRequest.getUserRole();
 		List<String> tagList = userQueryRequest.getTagList();
 		String sortField = userQueryRequest.getSortField();
+		Integer userGender = userQueryRequest.getUserGender();
 		String sortOrder = userQueryRequest.getSortOrder();
 		String userEmail = userQueryRequest.getUserEmail();
 		String userPhone = userQueryRequest.getUserPhone();
@@ -267,6 +280,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		// 精准查询
 		queryWrapper.eq(id != null, "id", id);
 		queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
+		queryWrapper.eq(ObjectUtils.isNotEmpty(userGender), "userGender", userGender);
 		
 		// JSON 数组查询
 		if (CollUtil.isNotEmpty(tagList)) {
