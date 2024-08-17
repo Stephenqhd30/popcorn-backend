@@ -1,6 +1,5 @@
 package com.stephen.popcorn.controller;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.stephen.popcorn.annotation.AuthCheck;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static com.stephen.popcorn.constant.SaltConstant.SALT;

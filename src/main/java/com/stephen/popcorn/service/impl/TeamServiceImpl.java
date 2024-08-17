@@ -25,6 +25,7 @@ import com.stephen.popcorn.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -44,8 +45,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 	@Resource
 	private UserService userService;
 	
-	@Resource
-	private TeamUserService teamUserService;
 	
 	/**
 	 * 校验数据
@@ -192,130 +191,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 		
 		teamVOPage.setRecords(teamVOList);
 		return teamVOPage;
-	}
-	
-	
-	/**
-	 * 加入队伍
-	 *
-	 * @param teamJoinRequest
-	 * @param request
-	 * @return
-	 */
-	@Override
-	public boolean joinTeam(TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
-		// 取出加入队伍中的信息
-		Long teamId = teamJoinRequest.getTeamId();
-		String joinTeamPassword = teamJoinRequest.getTeamPassword();
-		ThrowUtils.throwIf(teamId == null || teamId <= 0, ErrorCode.PARAMS_ERROR);
-		// 获取当前队伍信息
-		Team team = this.getById(teamId);
-		ThrowUtils.throwIf(team == null, ErrorCode.NOT_FOUND_ERROR, "队伍不存在");
-		Date expireTime = team.getExpireTime();
-		Integer status = team.getStatus();
-		String teamPassword = team.getTeamPassword();
-		
-		// 对数据进行校验
-		TeamStatusEnum teamStatusEnum = TeamStatusEnum.getEnumByValue(status);
-		if (TeamStatusEnum.SECURITY.equals(teamStatusEnum)) {
-			if (StringUtils.isBlank(joinTeamPassword) || !joinTeamPassword.equals(teamPassword)) {
-				throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
-			}
-		}
-		if (team.getExpireTime() != null) {
-			ThrowUtils.throwIf(expireTime.before(new Date()), ErrorCode.OPERATION_ERROR, "队伍已过期");
-		}
-		
-		// 需要查询数据库的关系
-		// 该用户及加入队伍的数量
-		User loginUser = userService.getLoginUser(request);
-		Long userId = loginUser.getId();
-		QueryWrapper<TeamUser> teamUserQueryWrapper = new QueryWrapper<>();
-		teamUserQueryWrapper.eq("userId", userId);
-		long hasJoinNum = teamUserService.count(teamUserQueryWrapper);
-		ThrowUtils.throwIf(hasJoinNum > 5, ErrorCode.PARAMS_ERROR, "最多创建和加入五个队伍");
-		teamUserQueryWrapper = new QueryWrapper<>();
-		teamUserQueryWrapper.eq("userId", userId);
-		teamUserQueryWrapper.eq("teamId", teamId);
-		// 不能重复加入
-		long hasUserJoinTeam = teamUserService.count(teamUserQueryWrapper);
-		ThrowUtils.throwIf(hasUserJoinTeam > 0, ErrorCode.PARAMS_ERROR, "用户已加入队伍");
-		
-		// 已加入队伍的人数
-		teamUserQueryWrapper = new QueryWrapper<>();
-		teamUserQueryWrapper.eq("teamId", teamId);
-		long teamHasJoinNum = teamUserService.count(teamUserQueryWrapper);
-		ThrowUtils.throwIf(teamHasJoinNum >= team.getMaxLength(), ErrorCode.OPERATION_ERROR, "队伍以满");
-		
-		// 修改队伍信息
-		TeamUser teamUser = new TeamUser();
-		teamUser.setUserId(userId);
-		teamUser.setTeamId(teamId);
-		
-		return teamUserService.save(teamUser);
-	}
-	
-	/**
-	 * 用户退出登录
-	 *
-	 * @param teamQuitRequest
-	 * @param request
-	 * @return
-	 */
-	public boolean quitTeam(TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
-		Long teamId = teamQuitRequest.getTeamId();
-		Team team = this.getById(teamId);
-		ThrowUtils.throwIf(team == null, ErrorCode.NOT_FOUND_ERROR, "队伍不存在");
-		// 获取当前登录用户信息
-		User loginUser = userService.getLoginUser(request);
-		Long userId = loginUser.getId();
-		
-		// 补充默认信息
-		TeamUser teamUser = new TeamUser();
-		teamUser.setUserId(userId);
-		teamUser.setTeamId(teamId);
-		
-		// 获取当前用户是否已经加入队伍
-		QueryWrapper<TeamUser> teamUserQueryWrapper = new QueryWrapper<>();
-		teamUserQueryWrapper.eq("userId", userId);
-		teamUserQueryWrapper.eq("teamId", teamId);
-		long hasJoinNum = teamUserService.count(teamUserQueryWrapper);
-		ThrowUtils.throwIf(hasJoinNum == 0, ErrorCode.OPERATION_ERROR, "未加入队伍");
-		// 获取当前队伍人数
-		teamUserQueryWrapper = new QueryWrapper<>();
-		teamUserQueryWrapper.eq("teamId", teamId);
-		long teamHasJoinNum = teamUserService.count(teamUserQueryWrapper);
-		// 队伍只剩下一个人的时候解散
-		if (teamHasJoinNum == 1) {
-			// 删除队伍和加入队伍的关系
-			this.removeById(teamId);
-		} else {
-			// 是否为队长
-			if (Objects.equals(team.getUserId(), userId)) {
-				// 队伍还有其他人，将队长转移给其他人(最早加入队伍的人)
-				// 1.获取队伍所有的加入用户和用户加入的时间
-				QueryWrapper<TeamUser> queryWrapper = new QueryWrapper<>();
-				queryWrapper.eq("teamId", teamId);
-				queryWrapper.last("order by id asc limit 2");
-				List<TeamUser> userTeamList = teamUserService.list(queryWrapper);
-				if (CollUtil.isEmpty(userTeamList) || userTeamList.size() <= 1) {
-					throw new BusinessException(ErrorCode.SYSTEM_ERROR);
-				}
-				TeamUser nextUserTeam = userTeamList.get(1);
-				Long nextTeamLeaderId = nextUserTeam.getUserId();
-				// 更新当前队伍的队长
-				Team updateTeam = new Team();
-				updateTeam.setId(teamId);
-				updateTeam.setUserId(nextTeamLeaderId);
-				boolean result = this.updateById(updateTeam);
-				if (!result) {
-					throw new BusinessException(ErrorCode.SYSTEM_ERROR, "更新队伍队长失败");
-				}
-			}
-		}
-		
-		// 移除当前用户和队伍的关系
-		return teamUserService.remove(teamUserQueryWrapper);
 	}
 	
 }

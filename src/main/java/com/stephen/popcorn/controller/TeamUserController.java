@@ -5,11 +5,10 @@ import com.stephen.popcorn.annotation.AuthCheck;
 import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.DeleteRequest;
 import com.stephen.popcorn.common.ErrorCode;
-import com.stephen.popcorn.model.vo.UserVO;
-import com.stephen.popcorn.utils.ResultUtils;
 import com.stephen.popcorn.constant.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
-import com.stephen.popcorn.utils.ThrowUtils;
+import com.stephen.popcorn.model.dto.team.TeamJoinRequest;
+import com.stephen.popcorn.model.dto.team.TeamQuitRequest;
 import com.stephen.popcorn.model.dto.teamUser.TeamUserAddRequest;
 import com.stephen.popcorn.model.dto.teamUser.TeamUserQueryRequest;
 import com.stephen.popcorn.model.entity.TeamUser;
@@ -17,13 +16,14 @@ import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.vo.TeamUserVO;
 import com.stephen.popcorn.service.TeamUserService;
 import com.stephen.popcorn.service.UserService;
+import com.stephen.popcorn.utils.ResultUtils;
+import com.stephen.popcorn.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 /**
  * 队伍-用户接口
@@ -176,4 +176,32 @@ public class TeamUserController {
 	}
 	
 	// endregion
+	
+	/**
+	 * 加入队伍
+	 *
+	 * @param teamJoinRequest
+	 * @param request
+	 * @return
+	 */
+	@PostMapping("/join")
+	public BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
+		ThrowUtils.throwIf(teamJoinRequest == null, ErrorCode.PARAMS_ERROR);
+		boolean result = teamUserService.joinTeam(teamJoinRequest, request);
+		return ResultUtils.success(result);
+	}
+	
+	/**
+	 * 退出队伍
+	 *
+	 * @param teamQuitRequest
+	 * @param request
+	 * @return
+	 */
+	@PostMapping("/quit")
+	public BaseResponse<Boolean> joinTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
+		ThrowUtils.throwIf(teamQuitRequest == null, ErrorCode.PARAMS_ERROR);
+		boolean result = teamUserService.quitTeam(teamQuitRequest, request);
+		return ResultUtils.success(result);
+	}
 }

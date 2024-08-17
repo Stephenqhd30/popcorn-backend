@@ -1,12 +1,8 @@
 package com.stephen.popcorn.model.dto.tag;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 创建标签请求

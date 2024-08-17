@@ -51,23 +51,4 @@ public interface TeamService extends IService<Team> {
 	 * @return
 	 */
 	Page<TeamVO> getTeamVOPage(Page<Team> teamPage, HttpServletRequest request);
-	
-	
-	/**
-	 * 加入队伍
-	 *
-	 * @param teamJoinRequest
-	 * @param request
-	 * @return
-	 */
-	boolean joinTeam(TeamJoinRequest teamJoinRequest, HttpServletRequest request);
-	
-	/**
-	 * 退出队伍
-	 *
-	 * @param teamQuitRequest
-	 * @param request
-	 * @return
-	 */
-	boolean quitTeam(TeamQuitRequest teamQuitRequest, HttpServletRequest request);
 }

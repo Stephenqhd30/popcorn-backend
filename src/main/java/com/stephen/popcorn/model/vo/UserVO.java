@@ -1,7 +1,6 @@
 package com.stephen.popcorn.model.vo;
 
 import cn.hutool.json.JSONUtil;
-import com.stephen.popcorn.model.entity.Tag;
 import com.stephen.popcorn.model.entity.User;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;

@@ -3,8 +3,6 @@ package com.stephen.popcorn.model.dto.team;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 编辑队伍请求

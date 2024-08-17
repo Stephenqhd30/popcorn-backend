@@ -3,6 +3,8 @@ package com.stephen.popcorn.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.stephen.popcorn.model.dto.team.TeamJoinRequest;
+import com.stephen.popcorn.model.dto.team.TeamQuitRequest;
 import com.stephen.popcorn.model.dto.teamUser.TeamUserQueryRequest;
 import com.stephen.popcorn.model.entity.TeamUser;
 import com.stephen.popcorn.model.vo.TeamUserVO;
@@ -49,4 +51,22 @@ public interface TeamUserService extends IService<TeamUser> {
      * @return
      */
     Page<TeamUserVO> getTeamUserVOPage(Page<TeamUser> teamUserPage, HttpServletRequest request);
+    
+    /**
+     * 加入队伍
+     *
+     * @param teamJoinRequest
+     * @param request
+     * @return
+     */
+    boolean joinTeam(TeamJoinRequest teamJoinRequest, HttpServletRequest request);
+    
+    /**
+     * 退出队伍
+     *
+     * @param teamQuitRequest
+     * @param request
+     * @return
+     */
+    boolean quitTeam(TeamQuitRequest teamQuitRequest, HttpServletRequest request);
 }

@@ -256,33 +256,5 @@ public class TeamController {
 	
 	// endregion
 	
-	/**
-	 * 加入队伍
-	 *
-	 * @param teamJoinRequest
-	 * @param request
-	 * @return
-	 */
-	@PostMapping("/join")
-	public BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
-		ThrowUtils.throwIf(teamJoinRequest == null, ErrorCode.PARAMS_ERROR);
-		boolean result = teamService.joinTeam(teamJoinRequest, request);
-		return ResultUtils.success(result);
-	}
-	
-	/**
-	 * 退出队伍
-	 *
-	 * @param teamQuitRequest
-	 * @param request
-	 * @return
-	 */
-	@PostMapping("/quit")
-	public BaseResponse<Boolean> joinTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
-		ThrowUtils.throwIf(teamQuitRequest == null, ErrorCode.PARAMS_ERROR);
-		boolean result = teamService.quitTeam(teamQuitRequest, request);
-		return ResultUtils.success(result);
-	}
-	
 	
 }

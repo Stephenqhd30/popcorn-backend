@@ -3,7 +3,6 @@ package com.stephen.popcorn.model.dto.tag;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 编辑标签请求

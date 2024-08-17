@@ -3,8 +3,6 @@ package com.stephen.popcorn.model.dto.teamUser;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 创建队伍-用户请求
