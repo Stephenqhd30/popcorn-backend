@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 /**
  * 队伍状态枚举类
- * 队伍状态（0-公开,1-私密,2-需要密码）
+ * 队伍状态（0-公开,1-私密）
  *
  * @author stephen qiu
  */

@@ -5,6 +5,7 @@ import com.stephen.popcorn.annotation.AuthCheck;
 import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.DeleteRequest;
 import com.stephen.popcorn.common.ErrorCode;
+import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.utils.ResultUtils;
 import com.stephen.popcorn.constant.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 队伍-用户接口

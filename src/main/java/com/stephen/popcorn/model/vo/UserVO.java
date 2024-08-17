@@ -104,7 +104,9 @@ public class UserVO implements Serializable {
 		}
 		UserVO userVO = new UserVO();
 		BeanUtils.copyProperties(user, userVO);
-		userVO.setTagList(JSONUtil.toList(user.getTags(), String.class));
+		if (user.getTags() != null) {
+			userVO.setTagList(JSONUtil.toList(user.getTags(), String.class));
+		}
 		return userVO;
 	}
 }

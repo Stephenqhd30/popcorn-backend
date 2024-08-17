@@ -2,6 +2,7 @@ package com.stephen.popcorn.mapper;
 
 import com.stephen.popcorn.model.entity.TeamUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Select;
 
 /**
 * @author stephen qiu
