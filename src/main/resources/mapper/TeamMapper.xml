@@ -8,7 +8,6 @@
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="teamName" column="teamName" jdbcType="VARCHAR"/>
             <result property="teamProfile" column="teamProfile" jdbcType="VARCHAR"/>
-            <result property="coverImage" column="coverImage" jdbcType="VARCHAR"/>
             <result property="expireTime" column="expireTime" jdbcType="TIMESTAMP"/>
             <result property="userId" column="userId" jdbcType="BIGINT"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
@@ -21,7 +20,7 @@
 
     <sql id="Base_Column_List">
         id,teamName,teamProfile,
-        coverImage,expireTime,userId,maxLength,
+        expireTime,userId,maxLength,
         status,teamPassword,createTime,
         updateTime,isDelete
     </sql>

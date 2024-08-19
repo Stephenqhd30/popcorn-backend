@@ -28,12 +28,6 @@ public class TeamEditRequest implements Serializable {
     private String teamProfile;
     
     /**
-     * 队伍图标
-     */
-    private String coverImage;
-    
-    
-    /**
      * 队伍状态（0-公开,1-私密）
      */
     private Integer status;

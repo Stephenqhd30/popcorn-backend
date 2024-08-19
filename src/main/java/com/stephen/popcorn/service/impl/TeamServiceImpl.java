@@ -6,31 +6,28 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.constant.CommonConstant;
-import com.stephen.popcorn.exception.BusinessException;
 import com.stephen.popcorn.mapper.TeamMapper;
-import com.stephen.popcorn.model.dto.team.TeamJoinRequest;
 import com.stephen.popcorn.model.dto.team.TeamQueryRequest;
-import com.stephen.popcorn.model.dto.team.TeamQuitRequest;
 import com.stephen.popcorn.model.entity.Team;
-import com.stephen.popcorn.model.entity.TeamUser;
 import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.enums.TeamStatusEnum;
 import com.stephen.popcorn.model.vo.TeamVO;
 import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.TeamService;
-import com.stephen.popcorn.service.TeamUserService;
 import com.stephen.popcorn.service.UserService;
 import com.stephen.popcorn.utils.SqlUtils;
 import com.stephen.popcorn.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

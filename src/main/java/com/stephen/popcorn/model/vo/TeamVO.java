@@ -32,11 +32,6 @@ public class TeamVO implements Serializable {
 	private String teamProfile;
 	
 	/**
-	 * 队伍图标
-	 */
-	private String coverImage;
-	
-	/**
 	 * 队伍过期时间
 	 */
 	private Date expireTime;
@@ -71,6 +66,11 @@ public class TeamVO implements Serializable {
 	 * 创建用户信息
 	 */
 	private UserVO userVO;
+	
+	/**
+	 * 已经加入队伍的人数
+	 */
+	private Integer hasJoinNum;
 	
 	/**
 	 * 封装类转对象

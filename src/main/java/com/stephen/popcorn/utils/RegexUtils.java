@@ -18,7 +18,7 @@ public class RegexUtils {
 	 * @return 验证成功返回true，验证失败返回false
 	 */
 	public static boolean checkEmail(String email) {
-		String regex = "\\w+@\\w+\\.[a-z]+(\\.[a-z]+)?";
+		String regex = "^(\\w+([-.][A-Za-z0-9]+)*){3,18}@\\w+([-.][A-Za-z0-9]+)*\\.\\w+([-.][A-Za-z0-9]+)*$";
 		return Pattern.matches(regex, email);
 	}
 	
@@ -173,7 +173,7 @@ public class RegexUtils {
 	/**
 	 * 匹配IP地址(简单匹配，格式，如：192.168.1.1，127.0.0.1，没有匹配IP段的大小)
 	 *
-	 * @param ipAddress IPv4标准地址
+	 * @param password 密码正则
 	 * @return 验证成功返回true，验证失败返回false
 	 */
 	public static boolean checkPassword(String password) {

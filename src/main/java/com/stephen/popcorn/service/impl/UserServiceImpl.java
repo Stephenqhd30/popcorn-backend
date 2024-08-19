@@ -76,10 +76,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 			ThrowUtils.throwIf(userProfile.length() > 50, ErrorCode.PARAMS_ERROR, "用户简介不能多余50字");
 		}
 		if (StringUtils.isNotBlank(userEmail)) {
-			ThrowUtils.throwIf(RegexUtils.checkEmail(userEmail), ErrorCode.PARAMS_ERROR, "用户邮箱有误");
+			ThrowUtils.throwIf(!RegexUtils.checkEmail(userEmail), ErrorCode.PARAMS_ERROR, "用户邮箱有误");
 		}
 		if (StringUtils.isNotBlank(userPhone)) {
-			ThrowUtils.throwIf(RegexUtils.checkMobile(userPhone), ErrorCode.PARAMS_ERROR, "用户手机号码有误");
+			ThrowUtils.throwIf(!RegexUtils.checkMobile(userPhone), ErrorCode.PARAMS_ERROR, "用户手机号码有误");
 		}
 		if (ObjectUtils.isNotEmpty(userGender)) {
 			ThrowUtils.throwIf(UserGenderEnum.getEnumByValue(userGender) == null, ErrorCode.PARAMS_ERROR, "性别填写有误");
