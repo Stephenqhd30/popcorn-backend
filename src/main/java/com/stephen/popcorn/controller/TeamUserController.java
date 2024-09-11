@@ -46,9 +46,9 @@ public class TeamUserController {
 	/**
 	 * 创建队伍-用户
 	 *
-	 * @param teamUserAddRequest
-	 * @param request
-	 * @return
+	 * @param teamUserAddRequest teamUserAddRequest
+	 * @param request            request
+	 * @return BaseResponse<Long>
 	 */
 	@PostMapping("/add")
 	public BaseResponse<Long> addTeamUser(@RequestBody TeamUserAddRequest teamUserAddRequest, HttpServletRequest request) {
@@ -70,11 +70,11 @@ public class TeamUserController {
 	}
 	
 	/**
-	 * 删除队伍-用户
+	 * 删除队伍-用户(硬删除)
 	 *
-	 * @param deleteRequest
-	 * @param request
-	 * @return
+	 * @param deleteRequest deleteRequest
+	 * @param request       request
+	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/delete")
 	public BaseResponse<Boolean> deleteTeamUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
@@ -99,8 +99,8 @@ public class TeamUserController {
 	/**
 	 * 根据 id 获取队伍-用户（封装类）
 	 *
-	 * @param id
-	 * @return
+	 * @param id id
+	 * @return BaseResponse<TeamUserVO>
 	 */
 	@GetMapping("/get/vo")
 	public BaseResponse<TeamUserVO> getTeamUserVOById(long id, HttpServletRequest request) {
@@ -115,8 +115,8 @@ public class TeamUserController {
 	/**
 	 * 分页获取队伍-用户列表（仅管理员可用）
 	 *
-	 * @param teamUserQueryRequest
-	 * @return
+	 * @param teamUserQueryRequest teamUserQueryRequest
+	 * @return BaseResponse<Page < TeamUser>>
 	 */
 	@PostMapping("/list/page")
 	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -132,9 +132,9 @@ public class TeamUserController {
 	/**
 	 * 分页获取队伍-用户列表（封装类）
 	 *
-	 * @param teamUserQueryRequest
-	 * @param request
-	 * @return
+	 * @param teamUserQueryRequest teamUserQueryRequest
+	 * @param request              request
+	 * @return BaseResponse<Page < TeamUserVO>>
 	 */
 	@PostMapping("/list/page/vo")
 	public BaseResponse<Page<TeamUserVO>> listTeamUserVOByPage(@RequestBody TeamUserQueryRequest teamUserQueryRequest,
@@ -153,9 +153,9 @@ public class TeamUserController {
 	/**
 	 * 分页获取当前登录用户创建的队伍-用户列表
 	 *
-	 * @param teamUserQueryRequest
-	 * @param request
-	 * @return
+	 * @param teamUserQueryRequest teamUserQueryRequest
+	 * @param request              request
+	 * @return BaseResponse<Page < TeamUserVO>>
 	 */
 	@PostMapping("/my/list/page/vo")
 	public BaseResponse<Page<TeamUserVO>> listMyTeamUserVOByPage(@RequestBody TeamUserQueryRequest teamUserQueryRequest,
@@ -180,9 +180,9 @@ public class TeamUserController {
 	/**
 	 * 加入队伍
 	 *
-	 * @param teamJoinRequest
-	 * @param request
-	 * @return
+	 * @param teamJoinRequest teamJoinRequest
+	 * @param request         request
+	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/join")
 	public BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
@@ -194,9 +194,9 @@ public class TeamUserController {
 	/**
 	 * 退出队伍
 	 *
-	 * @param teamQuitRequest
-	 * @param request
-	 * @return
+	 * @param teamQuitRequest teamQuitRequest
+	 * @param request         request
+	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/quit")
 	public BaseResponse<Boolean> joinTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request) {

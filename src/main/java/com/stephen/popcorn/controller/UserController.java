@@ -122,9 +122,9 @@ public class UserController {
 	/**
 	 * 创建用户
 	 *
-	 * @param userAddRequest
-	 * @param request
-	 * @return
+	 * @param userAddRequest userAddRequest
+	 * @param request        request
+	 * @return BaseResponse<Long>
 	 */
 	@PostMapping("/add")
 	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -153,9 +153,9 @@ public class UserController {
 	/**
 	 * 删除用户
 	 *
-	 * @param deleteRequest
-	 * @param request
-	 * @return
+	 * @param deleteRequest deleteRequest
+	 * @param request       request
+	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/delete")
 	public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
@@ -177,9 +177,9 @@ public class UserController {
 	/**
 	 * 更新用户
 	 *
-	 * @param userUpdateRequest
-	 * @param request
-	 * @return
+	 * @param userUpdateRequest userUpdateRequest
+	 * @param request           request
+	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/update")
 	public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
@@ -208,7 +208,7 @@ public class UserController {
 	 *
 	 * @param id      用户id
 	 * @param request request
-	 * @return
+	 * @return BaseResponse<User>
 	 */
 	@GetMapping("/get")
 	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -240,9 +240,9 @@ public class UserController {
 	/**
 	 * 分页获取用户列表（仅管理员）
 	 *
-	 * @param userQueryRequest
-	 * @param request
-	 * @return
+	 * @param userQueryRequest userQueryRequest
+	 * @param request request
+	 * @return BaseResponse<Page<User>>
 	 */
 	@PostMapping("/list/page")
 	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -286,8 +286,8 @@ public class UserController {
 	 * 更新个人信息
 	 *
 	 * @param userEditRequest 用户编辑条件
-	 * @param request 要求
-	 * @return  {@link BaseResponse}<{@link Boolean}>
+	 * @param request         要求
+	 * @return {@link BaseResponse}<{@link Boolean}>
 	 */
 	@PostMapping("/update/my")
 	public BaseResponse<Boolean> updateMyUser(@RequestBody UserEditRequest userEditRequest,

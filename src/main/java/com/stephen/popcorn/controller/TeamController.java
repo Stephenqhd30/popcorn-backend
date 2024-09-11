@@ -51,9 +51,9 @@ public class TeamController {
 	/**
 	 * 创建队伍
 	 *
-	 * @param teamAddRequest
-	 * @param request
-	 * @return
+	 * @param teamAddRequest teamAddRequest
+	 * @param request        request
+	 * @return BaseResponse<Long>
 	 */
 	@PostMapping("/add")
 	@Transactional(rollbackFor = Exception.class)
@@ -86,9 +86,9 @@ public class TeamController {
 	/**
 	 * 删除队伍
 	 *
-	 * @param deleteRequest
-	 * @param request
-	 * @return
+	 * @param deleteRequest deleteRequest
+	 * @param request       request
+	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/delete")
 	@Transactional(rollbackFor = Exception.class)
@@ -119,8 +119,8 @@ public class TeamController {
 	/**
 	 * 更新队伍（仅管理员可用）
 	 *
-	 * @param teamUpdateRequest
-	 * @return
+	 * @param teamUpdateRequest teamUpdateRequest
+	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/update")
 	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -146,8 +146,8 @@ public class TeamController {
 	/**
 	 * 根据 id 获取队伍（封装类）
 	 *
-	 * @param id
-	 * @return
+	 * @param id id
+	 * @return BaseResponse<TeamVO>
 	 */
 	@GetMapping("/get/vo")
 	public BaseResponse<TeamVO> getTeamVOById(long id, HttpServletRequest request) {
@@ -162,8 +162,8 @@ public class TeamController {
 	/**
 	 * 分页获取队伍列表（仅管理员可用）
 	 *
-	 * @param teamQueryRequest
-	 * @return
+	 * @param teamQueryRequest teamQueryRequest
+	 * @return BaseResponse<Page < Team>>
 	 */
 	@PostMapping("/list/page")
 	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -179,9 +179,9 @@ public class TeamController {
 	/**
 	 * 分页获取队伍列表（封装类）
 	 *
-	 * @param teamQueryRequest
-	 * @param request
-	 * @return
+	 * @param teamQueryRequest teamQueryRequest
+	 * @param request          request
+	 * @return BaseResponse<Page < TeamVO>>
 	 */
 	@PostMapping("/list/page/vo")
 	public BaseResponse<Page<TeamVO>> listTeamVOByPage(@RequestBody TeamQueryRequest teamQueryRequest,
@@ -200,9 +200,9 @@ public class TeamController {
 	/**
 	 * 分页获取当前登录用户创建的队伍列表
 	 *
-	 * @param teamQueryRequest
-	 * @param request
-	 * @return
+	 * @param teamQueryRequest teamQueryRequest
+	 * @param request          request
+	 * @return BaseResponse<Page < TeamVO>>
 	 */
 	@PostMapping("/my/list/page/vo")
 	public BaseResponse<Page<TeamVO>> listMyTeamVOByPage(@RequestBody TeamQueryRequest teamQueryRequest,
@@ -225,9 +225,9 @@ public class TeamController {
 	/**
 	 * 编辑队伍（给用户使用）
 	 *
-	 * @param teamEditRequest
-	 * @param request
-	 * @return
+	 * @param teamEditRequest teamEditRequest
+	 * @param request         request
+	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/edit")
 	public BaseResponse<Boolean> editTeam(@RequestBody TeamEditRequest teamEditRequest, HttpServletRequest request) {

@@ -78,8 +78,8 @@ public class UserVO implements Serializable {
 	/**
 	 * 封装类转对象
 	 *
-	 * @param userVO
-	 * @return
+	 * @param userVO userVO
+	 * @return User
 	 */
 	public static User voToObj(UserVO userVO) {
 		if (userVO == null) {
@@ -94,8 +94,8 @@ public class UserVO implements Serializable {
 	/**
 	 * 对象转封装类
 	 *
-	 * @param user
-	 * @return
+	 * @param user user
+	 * @return UserVO
 	 */
 	public static UserVO objToVo(User user) {
 		if (user == null) {

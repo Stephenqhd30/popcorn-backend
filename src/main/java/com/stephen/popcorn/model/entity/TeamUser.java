@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 队伍-用户表
+ * 队伍-用户表(硬删除)
  *
  * @author stephen qiu
  * @TableName team_user
@@ -45,12 +45,6 @@ public class TeamUser implements Serializable {
 	 * 更新时间
 	 */
 	private Date updateTime;
-	
-	/**
-	 * 是否删除
-	 */
-	@TableLogic
-	private Integer isDelete;
 	
 	@TableField(exist = false)
 	private static final long serialVersionUID = 1L;

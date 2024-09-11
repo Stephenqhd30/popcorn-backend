@@ -43,10 +43,10 @@ public class FileController {
 	/**
 	 * 文件上传
 	 *
-	 * @param multipartFile
-	 * @param uploadFileRequest
-	 * @param request
-	 * @return
+	 * @param multipartFile     multipartFile(上传的文件)
+	 * @param uploadFileRequest uploadFileRequest
+	 * @param request           request
+	 * @return BaseResponse<String>（文件上床之后返回的地址）
 	 */
 	@PostMapping("/upload")
 	public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
@@ -87,7 +87,7 @@ public class FileController {
 	/**
 	 * 校验文件
 	 *
-	 * @param multipartFile
+	 * @param multipartFile     multipartFile
 	 * @param fileUploadBizEnum 业务类型
 	 */
 	private void validFile(MultipartFile multipartFile, FileUploadBizEnum fileUploadBizEnum) {

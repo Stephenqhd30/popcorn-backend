@@ -75,8 +75,8 @@ public class TeamVO implements Serializable {
 	/**
 	 * 封装类转对象
 	 *
-	 * @param teamVO
-	 * @return
+	 * @param teamVO teamVO
+	 * @return Team
 	 */
 	public static Team voToObj(TeamVO teamVO) {
 		if (teamVO == null) {
@@ -90,8 +90,8 @@ public class TeamVO implements Serializable {
 	/**
 	 * 对象转封装类
 	 *
-	 * @param team
-	 * @return
+	 * @param team team
+	 * @return TeamVO
 	 */
 	public static TeamVO objToVo(Team team) {
 		if (team == null) {
