@@ -14,6 +14,7 @@ import java.util.Date;
  */
 @Data
 public class TeamVO implements Serializable {
+
 	
 	private static final long serialVersionUID = 3268915677530937138L;
 	/**
@@ -99,6 +100,7 @@ public class TeamVO implements Serializable {
 		}
 		TeamVO teamVO = new TeamVO();
 		BeanUtils.copyProperties(team, teamVO);
+	
 		return teamVO;
 	}
 }

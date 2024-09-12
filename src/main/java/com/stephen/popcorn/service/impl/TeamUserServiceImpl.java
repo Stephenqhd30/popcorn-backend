@@ -46,7 +46,7 @@ public class TeamUserServiceImpl extends ServiceImpl<TeamUserMapper, TeamUser> i
 	@Resource
 	private UserService userService;
 	
-	@Autowired
+	@Resource
 	private TeamService teamService;
 	
 	/**

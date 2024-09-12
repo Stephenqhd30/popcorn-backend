@@ -1,7 +1,9 @@
 package com.stephen.popcorn.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
@@ -9,17 +11,20 @@ import com.stephen.popcorn.constant.CommonConstant;
 import com.stephen.popcorn.mapper.TeamMapper;
 import com.stephen.popcorn.model.dto.team.TeamQueryRequest;
 import com.stephen.popcorn.model.entity.Team;
+import com.stephen.popcorn.model.entity.TeamUser;
 import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.enums.TeamStatusEnum;
 import com.stephen.popcorn.model.vo.TeamVO;
 import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.TeamService;
+import com.stephen.popcorn.service.TeamUserService;
 import com.stephen.popcorn.service.UserService;
 import com.stephen.popcorn.utils.SqlUtils;
 import com.stephen.popcorn.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -42,11 +47,14 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 	@Resource
 	private UserService userService;
 	
+	@Resource
+	private @Lazy TeamUserService teamUserService;
+	
 	
 	/**
 	 * 校验数据
 	 *
-	 * @param team
+	 * @param team team
 	 * @param add  对创建的数据进行校验
 	 */
 	@Override
@@ -86,8 +94,8 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 	/**
 	 * 获取查询条件
 	 *
-	 * @param teamQueryRequest
-	 * @return
+	 * @param teamQueryRequest teamQueryRequest
+	 * @return {@link QueryWrapper<Team>}
 	 */
 	@Override
 	public QueryWrapper<Team> getQueryWrapper(TeamQueryRequest teamQueryRequest) {
@@ -131,7 +139,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 	 *
 	 * @param team    队伍信息
 	 * @param request 请求
-	 * @return
+	 * @return {@link TeamVO}
 	 */
 	@Override
 	public TeamVO getTeamVO(Team team, HttpServletRequest request) {
@@ -146,8 +154,13 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 		if (userId != null && userId > 0) {
 			user = userService.getById(userId);
 		}
+		// 2. 获取当前队伍已经加入的人数
+		LambdaQueryWrapper<TeamUser> queryWrapper = Wrappers.lambdaQuery(TeamUser.class).eq(TeamUser::getTeamId, team.getId());
+		int count = (int) teamUserService.count(queryWrapper);
+		
 		UserVO userVO = userService.getUserVO(user, request);
 		teamVO.setUserVO(userVO);
+		teamVO.setHasJoinNum(count);
 		return teamVO;
 	}
 	
@@ -155,8 +168,8 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 	 * 分页获取队伍封装
 	 *
 	 * @param teamPage 队伍分页信息
-	 * @param request
-	 * @return
+	 * @param request request
+	 * @return {@link Page<TeamVO>}
 	 */
 	@Override
 	public Page<TeamVO> getTeamVOPage(Page<Team> teamPage, HttpServletRequest request) {
@@ -166,7 +179,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 			return teamVOPage;
 		}
 		// 对象列表 => 封装对象列表
-		List<TeamVO> teamVOList = teamList.stream().map(TeamVO::objToVo).collect(Collectors.toList());
+		List<TeamVO> teamVOList = teamList.stream().map(team -> getTeamVO(team, request)).collect(Collectors.toList());
 		
 		// todo 可以根据需要为封装对象补充值，不需要的内容可以删除
 		// region 可选
