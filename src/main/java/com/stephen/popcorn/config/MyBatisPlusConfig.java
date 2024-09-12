@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * MyBatis Plus 配置
  *
- * @author https://stephenqhd30.github.io/
+ * @author <a href="https://stephenqhd30.github.io/">...</a>
  */
 @Configuration
 @MapperScan("com.stephen.popcorn.mapper")
@@ -19,7 +19,6 @@ public class MyBatisPlusConfig {
 	/**
 	 * 拦截器配置
 	 *
-	 * @return
 	 */
 	@Bean
 	public MybatisPlusInterceptor mybatisPlusInterceptor() {

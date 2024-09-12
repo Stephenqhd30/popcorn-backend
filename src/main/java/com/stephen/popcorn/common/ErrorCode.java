@@ -1,10 +1,13 @@
 package com.stephen.popcorn.common;
 
+import lombok.Getter;
+
 /**
  * 自定义错误码
  *
  * @author stephen qiu
  */
+@Getter
 public enum ErrorCode {
 	
 	SUCCESS(0, "ok"),
@@ -29,14 +32,6 @@ public enum ErrorCode {
 	ErrorCode(int code, String message) {
 		this.code = code;
 		this.message = message;
-	}
-	
-	public int getCode() {
-		return code;
-	}
-	
-	public String getMessage() {
-		return message;
 	}
 	
 }
