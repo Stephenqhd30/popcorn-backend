@@ -2,9 +2,11 @@
 ###  ###
 
 HELP.md
+application.properties
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
+!**/src/resources/
 !**/src/test/**/target/
 
 ### STS ###
@@ -21,6 +23,7 @@ target/
 *.iws
 *.iml
 *.ipr
+
 
 ### NetBeans ###
 /nbproject/private/
@@ -145,3 +148,5 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
+
+application.properties

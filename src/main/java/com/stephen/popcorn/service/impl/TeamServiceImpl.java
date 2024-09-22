@@ -9,7 +9,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.constant.CommonConstant;
 import com.stephen.popcorn.mapper.TeamMapper;
+import com.stephen.popcorn.model.dto.tag.TagDTO;
 import com.stephen.popcorn.model.dto.team.TeamQueryRequest;
+import com.stephen.popcorn.model.entity.Tag;
 import com.stephen.popcorn.model.entity.Team;
 import com.stephen.popcorn.model.entity.TeamUser;
 import com.stephen.popcorn.model.entity.User;
@@ -202,5 +204,4 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 		teamVOPage.setRecords(teamVOList);
 		return teamVOPage;
 	}
-	
 }

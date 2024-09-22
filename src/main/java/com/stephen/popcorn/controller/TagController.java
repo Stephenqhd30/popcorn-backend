@@ -1,16 +1,15 @@
 package com.stephen.popcorn.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.stephen.popcorn.annotation.AuthCheck;
 import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.DeleteRequest;
 import com.stephen.popcorn.common.ErrorCode;
+import com.stephen.popcorn.constant.RedisConstant;
 import com.stephen.popcorn.constant.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
-import com.stephen.popcorn.model.dto.tag.TagAddRequest;
-import com.stephen.popcorn.model.dto.tag.TagEditRequest;
-import com.stephen.popcorn.model.dto.tag.TagQueryRequest;
-import com.stephen.popcorn.model.dto.tag.TagUpdateRequest;
+import com.stephen.popcorn.model.dto.tag.*;
 import com.stephen.popcorn.model.entity.Tag;
 import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.vo.TagVO;
@@ -20,10 +19,14 @@ import com.stephen.popcorn.utils.ResultUtils;
 import com.stephen.popcorn.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 标签接口
@@ -40,6 +43,9 @@ public class TagController {
 	
 	@Resource
 	private UserService userService;
+	
+	@Resource
+	private RedisTemplate<String, Object> redisTemplate;
 	
 	// region 增删改查
 	
@@ -232,6 +238,34 @@ public class TagController {
 		boolean result = tagService.updateById(tag);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
 		return ResultUtils.success(true);
+	}
+	
+	/**
+	 * 获取标签的树组件
+	 *
+	 * @return {@link BaseResponse}<{@link List}<{@link TagDTO}>>
+	 */
+	@GetMapping("/list/tree")
+	public BaseResponse<List<TagDTO>> listTagByTree() {
+		String filepath =  RedisConstant.FILE_NAME + RedisConstant.TAG_TREE_KEY;
+		// 先从 Redis 中查询是否过期
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(filepath))) {
+			return ResultUtils.success((List<TagDTO>) redisTemplate.opsForValue().get(filepath));
+		}
+		// 构建查询条件 查询出父标签
+		QueryWrapper<Tag> parentQueryWrapper = new QueryWrapper<>();
+		parentQueryWrapper.isNull("parentId");
+		// 标签根节点列表
+		List<Tag> parentTags = tagService.list(parentQueryWrapper);
+		
+		// 转换为 TagDTO，并递归填充子节点
+		List<TagDTO> tagDTOList = parentTags.stream()
+				.map(parentTag -> tagService.getTagDTO(parentTag))
+				.collect(Collectors.toList());
+		// 返回标签树形结构
+		// 将返回的标签属性组件存储进 Redis 中（大部分时间不会背修改）设置过期时间为1天
+		redisTemplate.opsForValue().set(filepath, tagDTOList, 1, TimeUnit.DAYS);
+		return ResultUtils.success(tagDTOList);
 	}
 	
 	// endregion

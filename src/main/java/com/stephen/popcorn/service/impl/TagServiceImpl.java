@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.constant.CommonConstant;
 import com.stephen.popcorn.mapper.TagMapper;
+import com.stephen.popcorn.model.dto.tag.TagDTO;
 import com.stephen.popcorn.model.dto.tag.TagQueryRequest;
 import com.stephen.popcorn.model.entity.Tag;
 import com.stephen.popcorn.model.entity.User;
@@ -165,4 +166,71 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 		return tagVOPage;
 	}
 	
+	
+	/**
+	 * 递归将 Tag 实体转换为 TagDTO，并填充子标签
+	 *
+	 * @param tag 父标签
+	 * @return {@link TagDTO}
+	 */
+	@Override
+	public TagDTO getTagDTO(Tag tag) {
+		// 创建 TagDTO 并填充基础信息
+		TagDTO tagDTO = new TagDTO();
+		tagDTO.setId(tag.getId());
+		tagDTO.setTagName(tag.getTagName());
+		
+		// 查询子标签
+		QueryWrapper<Tag> childQueryWrapper = new QueryWrapper<>();
+		childQueryWrapper.eq("parentId", tag.getId());
+		List<Tag> childTags = this.list(childQueryWrapper);
+		
+		// 如果有子标签，递归处理子标签
+		if (!childTags.isEmpty()) {
+			List<TagDTO.TagChildren> childDTOList = childTags.stream()
+					.map(childTag -> {
+						if (childTag.getId() == null) {
+							return null;
+						}
+						TagDTO.TagChildren childDTO = new TagDTO.TagChildren();
+						childDTO.setId(childTag.getId());
+						childDTO.setTagName(childTag.getTagName());
+						
+						// 递归获取子节点的子节点
+						List<TagDTO.TagChildren> grandChildren = tagToTagChildren(childTag.getId());
+						childDTO.setTagChildrenList(grandChildren);
+						
+						return childDTO;
+					}).collect(Collectors.toList());
+			
+			tagDTO.setTagChildrenList(childDTOList);
+		}
+		
+		return tagDTO;
+	}
+	
+	/**
+	 * 递归获取子标签的子节点
+	 *
+	 * @param parentId 父标签 id
+	 * @return {@link List<TagDTO.TagChildren>}
+	 */
+	private List<TagDTO.TagChildren> tagToTagChildren(Long parentId) {
+		QueryWrapper<Tag> childQueryWrapper = new QueryWrapper<>();
+		childQueryWrapper.eq("parentId", parentId);
+		List<Tag> childTags = this.list(childQueryWrapper);
+		
+		return childTags.stream()
+				.map(childTag -> {
+					TagDTO.TagChildren childDTO = new TagDTO.TagChildren();
+					childDTO.setId(childTag.getId());
+					childDTO.setTagName(childTag.getTagName());
+					
+					// 递归获取子节点的子节点
+					List<TagDTO.TagChildren> grandChildren = tagToTagChildren(childTag.getId());
+					childDTO.setTagChildrenList(grandChildren);
+					
+					return childDTO;
+				}).collect(Collectors.toList());
+	}
 }
