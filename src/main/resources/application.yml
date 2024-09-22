@@ -55,10 +55,10 @@ mybatis-plus:
 # 对象存储
 cos:
   client:
-    accessKey: ${cos.client.accessKey}
-    secretKey: ${cos.client.secretKey}
-    region: ${cos.client.region}
-    bucket: ${cos.client.bucket}
+    accessKey: ${popcorn.client.accessKey}
+    secretKey: ${popcorn.client.secretKey}
+    region: ${popcorn.client.region}
+    bucket: ${popcorn.client.bucket}
 
 # 接口文档配置
 knife4j:
