@@ -51,6 +51,7 @@ public class TeamUserController {
 	 * @return BaseResponse<Long>
 	 */
 	@PostMapping("/add")
+	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
 	public BaseResponse<Long> addTeamUser(@RequestBody TeamUserAddRequest teamUserAddRequest, HttpServletRequest request) {
 		ThrowUtils.throwIf(teamUserAddRequest == null, ErrorCode.PARAMS_ERROR);
 		// todo 在此处将实体类和 DTO 进行转换
@@ -60,7 +61,7 @@ public class TeamUserController {
 		teamUserService.validTeamUser(teamUser, true);
 		// todo 填充默认值
 		User loginUser = userService.getLoginUser(request);
-		teamUser.setUserId(loginUser.getId());
+		teamUser.setCaptainId(loginUser.getId());
 		// 写入数据库
 		boolean result = teamUserService.save(teamUser);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -176,32 +177,4 @@ public class TeamUserController {
 	}
 	
 	// endregion
-	
-	/**
-	 * 加入队伍
-	 *
-	 * @param teamJoinRequest teamJoinRequest
-	 * @param request         request
-	 * @return BaseResponse<Boolean>
-	 */
-	@PostMapping("/join")
-	public BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
-		ThrowUtils.throwIf(teamJoinRequest == null, ErrorCode.PARAMS_ERROR);
-		boolean result = teamUserService.joinTeam(teamJoinRequest, request);
-		return ResultUtils.success(result);
-	}
-	
-	/**
-	 * 退出队伍
-	 *
-	 * @param teamQuitRequest teamQuitRequest
-	 * @param request         request
-	 * @return BaseResponse<Boolean>
-	 */
-	@PostMapping("/quit")
-	public BaseResponse<Boolean> joinTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
-		ThrowUtils.throwIf(teamQuitRequest == null, ErrorCode.PARAMS_ERROR);
-		boolean result = teamUserService.quitTeam(teamQuitRequest, request);
-		return ResultUtils.success(result);
-	}
 }

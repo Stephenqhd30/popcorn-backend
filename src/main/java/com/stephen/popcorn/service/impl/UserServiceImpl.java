@@ -17,6 +17,7 @@ import com.stephen.popcorn.model.enums.UserRoleEnum;
 import com.stephen.popcorn.model.vo.LoginUserVO;
 import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.UserService;
+import com.stephen.popcorn.utils.AvatarUtils;
 import com.stephen.popcorn.utils.RegexUtils;
 import com.stephen.popcorn.utils.SqlUtils;
 import com.stephen.popcorn.utils.ThrowUtils;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

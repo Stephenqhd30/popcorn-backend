@@ -32,6 +32,11 @@ public class TeamUserVO implements Serializable {
 	private Long teamId;
 	
 	/**
+	 * 队长id
+	 */
+	private Long captainId;
+	
+	/**
 	 * 加入时间
 	 */
 	private Date joinTime;

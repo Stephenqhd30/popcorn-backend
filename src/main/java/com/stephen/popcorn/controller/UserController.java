@@ -6,6 +6,7 @@ import com.stephen.popcorn.annotation.AuthCheck;
 import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.DeleteRequest;
 import com.stephen.popcorn.common.ErrorCode;
+import com.stephen.popcorn.constant.SaltConstant;
 import com.stephen.popcorn.constant.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
 import com.stephen.popcorn.model.dto.user.*;
@@ -13,6 +14,7 @@ import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.vo.LoginUserVO;
 import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.UserService;
+import com.stephen.popcorn.utils.AvatarUtils;
 import com.stephen.popcorn.utils.ResultUtils;
 import com.stephen.popcorn.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +25,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.List;
-
-import static com.stephen.popcorn.constant.SaltConstant.SALT;
-import static com.stephen.popcorn.constant.UserConstant.DEFAULT_PASSWORD;
-import static com.stephen.popcorn.constant.UserConstant.USER_AVATAR;
 
 
 /**
@@ -42,7 +41,6 @@ public class UserController {
 	
 	@Resource
 	private UserService userService;
-	
 	
 	// region 登录相关
 	
@@ -91,8 +89,8 @@ public class UserController {
 	/**
 	 * 用户注销
 	 *
-	 * @param request
-	 * @return
+	 * @param request request
+	 * @return {@link BaseResponse<Boolean>}
 	 */
 	@PostMapping("/logout")
 	public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
@@ -106,8 +104,8 @@ public class UserController {
 	/**
 	 * 获取当前登录用户
 	 *
-	 * @param request
-	 * @return
+	 * @param request request
+	 * @return {@link BaseResponse<LoginUserVO>}
 	 */
 	@GetMapping("/get/login")
 	public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
@@ -138,10 +136,10 @@ public class UserController {
 		userService.validUser(user, true);
 		// todo 填充默认值
 		// 默认密码 12345678
-		String encryptPassword = DigestUtils.md5DigestAsHex((SALT + DEFAULT_PASSWORD).getBytes());
+		String encryptPassword = DigestUtils.md5DigestAsHex((SaltConstant.SALT + UserConstant.DEFAULT_PASSWORD).getBytes());
 		user.setUserPassword(encryptPassword);
-		// 设置一个默认的头像
-		user.setUserAvatar(USER_AVATAR);
+		// 给用户分配一个默认的头像
+		user.setUserAvatar(UserConstant.USER_AVATAR);
 		// 写入数据库
 		boolean result = userService.save(user);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -241,8 +239,8 @@ public class UserController {
 	 * 分页获取用户列表（仅管理员）
 	 *
 	 * @param userQueryRequest userQueryRequest
-	 * @param request request
-	 * @return BaseResponse<Page<User>>
+	 * @param request          request
+	 * @return BaseResponse<Page < User>>
 	 */
 	@PostMapping("/list/page")
 	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)

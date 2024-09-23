@@ -22,6 +22,5 @@ public class TeamUserAddRequest implements Serializable {
      */
     private Long teamId;
 
-
     private static final long serialVersionUID = 1L;
 }

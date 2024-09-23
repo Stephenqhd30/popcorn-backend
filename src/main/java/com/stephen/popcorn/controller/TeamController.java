@@ -8,10 +8,7 @@ import com.stephen.popcorn.common.DeleteRequest;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.constant.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
-import com.stephen.popcorn.model.dto.team.TeamAddRequest;
-import com.stephen.popcorn.model.dto.team.TeamEditRequest;
-import com.stephen.popcorn.model.dto.team.TeamQueryRequest;
-import com.stephen.popcorn.model.dto.team.TeamUpdateRequest;
+import com.stephen.popcorn.model.dto.team.*;
 import com.stephen.popcorn.model.dto.teamUser.TeamUserQueryRequest;
 import com.stephen.popcorn.model.entity.Team;
 import com.stephen.popcorn.model.entity.TeamUser;
@@ -72,6 +69,7 @@ public class TeamController {
 		team.setUserId(loginUser.getId());
 		TeamUser teamUser = new TeamUser();
 		teamUser.setUserId(loginUser.getId());
+		teamUser.setCaptainId(loginUser.getId());
 		// 写入数据库
 		boolean result = teamService.save(team);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -259,5 +257,32 @@ public class TeamController {
 	
 	// endregion
 	
+	/**
+	 * 加入队伍
+	 *
+	 * @param teamJoinRequest teamJoinRequest
+	 * @param request         request
+	 * @return BaseResponse<Boolean>
+	 */
+	@PostMapping("/join")
+	public BaseResponse<Boolean> joinTeam(@RequestBody TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
+		ThrowUtils.throwIf(teamJoinRequest == null, ErrorCode.PARAMS_ERROR);
+		boolean result = teamService.joinTeam(teamJoinRequest, request);
+		return ResultUtils.success(result);
+	}
+	
+	/**
+	 * 退出队伍
+	 *
+	 * @param teamQuitRequest teamQuitRequest
+	 * @param request         request
+	 * @return BaseResponse<Boolean>
+	 */
+	@PostMapping("/quit")
+	public BaseResponse<Boolean> quitTeam(@RequestBody TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
+		ThrowUtils.throwIf(teamQuitRequest == null, ErrorCode.PARAMS_ERROR);
+		boolean result = teamService.quitTeam(teamQuitRequest, request);
+		return ResultUtils.success(result);
+	}
 	
 }

@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.stephen.popcorn.model.dto.tag.TagDTO;
+import com.stephen.popcorn.model.dto.team.TeamJoinRequest;
 import com.stephen.popcorn.model.dto.team.TeamQueryRequest;
+import com.stephen.popcorn.model.dto.team.TeamQuitRequest;
 import com.stephen.popcorn.model.entity.Tag;
 import com.stephen.popcorn.model.entity.Team;
 import com.stephen.popcorn.model.vo.TeamVO;
@@ -51,4 +53,22 @@ public interface TeamService extends IService<Team> {
 	 * @return {@link Page<TeamVO>}
 	 */
 	Page<TeamVO> getTeamVOPage(Page<Team> teamPage, HttpServletRequest request);
+	
+	/**
+	 * 加入队伍
+	 *
+	 * @param teamJoinRequest teamJoinRequest
+	 * @param request         request
+	 * @return {@link boolean}
+	 */
+	boolean joinTeam(TeamJoinRequest teamJoinRequest, HttpServletRequest request);
+	
+	/**
+	 * 退出队伍
+	 *
+	 * @param teamQuitRequest teamQuitRequest
+	 * @param request         request
+	 * @return {@link boolean}
+	 */
+	boolean quitTeam(TeamQuitRequest teamQuitRequest, HttpServletRequest request);
 }

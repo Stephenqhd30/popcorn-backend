@@ -30,6 +30,11 @@ public class TeamUserQueryRequest extends PageRequest implements Serializable {
      */
     private Long teamId;
     
+    /**
+     * 队长id
+     */
+    private Long captainId;
+    
 
     private static final long serialVersionUID = 1L;
 }
