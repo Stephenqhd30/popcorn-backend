@@ -2,13 +2,16 @@ package com.stephen.popcorn.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.stephen.popcorn.model.dto.user.UserMatchRequest;
 import com.stephen.popcorn.model.dto.user.UserQueryRequest;
 import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.vo.LoginUserVO;
 import com.stephen.popcorn.model.vo.UserVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户服务
@@ -117,4 +120,21 @@ public interface UserService extends IService<User> {
 	 * @return
 	 */
 	QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+	
+	/**
+	 * 导入用户
+	 *
+	 * @param file file
+	 * @return {@link Map}<{@link String}, {@link Object}>
+	 */
+	Map<String, Object> importUsers(MultipartFile file);
+	
+	/**
+	 * 获取匹配的用户
+	 *
+	 * @param userMatchRequest userMatchRequest
+	 * @param request  request
+	 * @return {@link List<UserVO>}
+	 */
+	List<UserVO> cosMatchUsers(UserMatchRequest userMatchRequest, HttpServletRequest request);
 }

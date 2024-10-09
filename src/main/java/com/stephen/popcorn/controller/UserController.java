@@ -1,6 +1,7 @@
 package com.stephen.popcorn.controller;
 
 import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.stephen.popcorn.annotation.AuthCheck;
 import com.stephen.popcorn.common.BaseResponse;
@@ -11,10 +12,13 @@ import com.stephen.popcorn.constant.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
 import com.stephen.popcorn.model.dto.user.*;
 import com.stephen.popcorn.model.entity.User;
+import com.stephen.popcorn.model.enums.UserGenderEnum;
+import com.stephen.popcorn.model.enums.UserRoleEnum;
 import com.stephen.popcorn.model.vo.LoginUserVO;
+import com.stephen.popcorn.model.vo.UserExcelVO;
 import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.utils.AvatarUtils;
+import com.stephen.popcorn.utils.ExcelUtils;
 import com.stephen.popcorn.utils.ResultUtils;
 import com.stephen.popcorn.utils.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +26,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
@@ -303,4 +312,91 @@ public class UserController {
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
 		return ResultUtils.success(true);
 	}
+	
+	/**
+	 * 用户数据批量导入
+	 *
+	 * @param file 用户 Excel 文件
+	 * @return 导入结果
+	 */
+	@PostMapping("/import")
+	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	public BaseResponse<Map<String, Object>> importUserDataByExcel(@RequestPart("file") MultipartFile file) {
+		// 检查文件是否为空
+		ThrowUtils.throwIf(file.isEmpty(), ErrorCode.PARAMS_ERROR, "文件不能为空");
+		
+		// 获取文件名并检查是否为null
+		String filename = file.getOriginalFilename();
+		ThrowUtils.throwIf(filename == null, ErrorCode.PARAMS_ERROR, "文件名不能为空");
+		
+		// 检查文件格式是否为Excel格式
+		if (!filename.endsWith(".xlsx") && !filename.endsWith(".xls")) {
+			throw new RuntimeException("上传文件格式不正确");
+		}
+		Map<String, Object> result = null;
+		
+		try {
+			// 调用服务层处理用户导入
+			result = userService.importUsers(file);
+		} catch (Exception e) {
+			return ResultUtils.error(ErrorCode.PARAMS_ERROR, "导入信息有误");
+		}
+		return ResultUtils.success(result);
+	}
+	
+	/**
+	 * 用户数据导出
+	 * 文件下载（失败了会返回一个有部分数据的Excel）
+	 * 1. 创建excel对应的实体对象
+	 * 2. 设置返回的 参数
+	 * 3. 直接写，这里注意，finish的时候会自动关闭OutputStream,当然你外面再关闭流问题不大
+	 *
+	 * @param response response
+	 */
+	@GetMapping("/download")
+	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	public void download(HttpServletResponse response) throws IOException {
+		// 获取数据，根据自身业务修改
+		List<UserExcelVO> userExcelVOList = userService.list().stream().map(user -> {
+					UserExcelVO userExcelVO = new UserExcelVO();
+					BeanUtils.copyProperties(user, userExcelVO);
+					userExcelVO.setId(String.valueOf(user.getId()));
+					userExcelVO.setUserGender(Objects.requireNonNull(UserGenderEnum.getEnumByValue(user.getUserGender())).getText());
+					userExcelVO.setUserRole(Objects.requireNonNull(UserRoleEnum.getEnumByValue(user.getUserRole())).getText());
+					userExcelVO.setCreateTime(ExcelUtils.dateToString(user.getCreateTime()));
+					userExcelVO.setUpdateTime(ExcelUtils.dateToString(user.getUpdateTime()));
+					return userExcelVO;
+				})
+				.collect(Collectors.toList());
+		// 设置导出名称
+		ExcelUtils.setExcelResponseProp(response, "用户信息");
+		// 这里 需要指定写用哪个class去写，然后写到第一个sheet，名字为模板 然后文件流会自动关闭
+		// 写入 Excel 文件
+		try {
+			EasyExcel.write(response.getOutputStream(), UserExcelVO.class)
+					.sheet("用户信息")
+					.doWrite(userExcelVOList);
+		} catch (Exception e) {
+			log.error("导出失败:{}", e.getMessage());
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "导出失败");
+		}
+	}
+	
+	/**
+	 * 通过余弦相似度想法计算出当前用户和当前用户的相似度
+	 *
+	 * @param userMatchRequest userMatchRequest
+	 * @param request  request
+	 * @return {@link BaseResponse<List<UserVO>>}
+	 */
+	@PostMapping("/match")
+	public BaseResponse<List<UserVO>> matchUsers(@RequestBody UserMatchRequest userMatchRequest, HttpServletRequest request) {
+		ThrowUtils.throwIf(userMatchRequest == null, ErrorCode.PARAMS_ERROR);
+		int number = userMatchRequest.getNumber();
+		// 检查参数是否合法
+		ThrowUtils.throwIf(number <= 0 || number > 20, ErrorCode.PARAMS_ERROR, "匹配人数不能小于0人或者多于20人");
+		return ResultUtils.success(userService.cosMatchUsers(userMatchRequest, request));
+	}
+	
+	
 }

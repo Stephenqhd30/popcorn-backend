@@ -76,6 +76,11 @@ public class UserVO implements Serializable {
 	private Date updateTime;
 	
 	/**
+	 * 相似度
+	 */
+	private Double similarity;
+	
+	/**
 	 * 封装类转对象
 	 *
 	 * @param userVO userVO

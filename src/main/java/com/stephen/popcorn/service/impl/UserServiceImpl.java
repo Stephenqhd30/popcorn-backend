@@ -1,15 +1,21 @@
 package com.stephen.popcorn.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.stephen.popcorn.aop.UserExcelListener;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.constant.CommonConstant;
+import com.stephen.popcorn.constant.RedisConstant;
 import com.stephen.popcorn.constant.SaltConstant;
 import com.stephen.popcorn.constant.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
 import com.stephen.popcorn.mapper.UserMapper;
+import com.stephen.popcorn.model.dto.user.UserMatchRequest;
 import com.stephen.popcorn.model.dto.user.UserQueryRequest;
 import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.enums.UserGenderEnum;
@@ -17,7 +23,7 @@ import com.stephen.popcorn.model.enums.UserRoleEnum;
 import com.stephen.popcorn.model.vo.LoginUserVO;
 import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.utils.AvatarUtils;
+import com.stephen.popcorn.utils.CosineSimilarityUtil;
 import com.stephen.popcorn.utils.RegexUtils;
 import com.stephen.popcorn.utils.SqlUtils;
 import com.stephen.popcorn.utils.ThrowUtils;
@@ -25,13 +31,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -44,6 +56,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 	
+	
+	@Resource
+	private RedisTemplate<String, Object> redisTemplate;
 	/**
 	 * 校验数据
 	 *
@@ -297,5 +312,118 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
 				sortField);
 		return queryWrapper;
+	}
+	
+	/**
+	 * 导入用户数据
+	 *
+	 * @param file 上传的 Excel 文件
+	 * @return 返回成功和错误信息
+	 */
+	@Override
+	public Map<String, Object> importUsers(MultipartFile file) {
+		ThrowUtils.throwIf(file == null || file.isEmpty(), ErrorCode.OPERATION_ERROR, "上传的文件为空");
+		
+		// 传递 userService 实例给 UserExcelListener
+		UserExcelListener listener = new UserExcelListener(this);
+		
+		try {
+			EasyExcel.read(file.getInputStream(), User.class, listener).sheet().doRead();
+		} catch (IOException e) {
+			log.error("文件读取失败: {}", e.getMessage());
+			throw new BusinessException(ErrorCode.OPERATION_ERROR, "文件读取失败");
+		} catch (ExcelAnalysisException e) {
+			log.error("Excel解析失败: {}", e.getMessage());
+			throw new BusinessException(ErrorCode.OPERATION_ERROR, "Excel解析失败");
+		}
+		
+		// 返回处理结果，包括成功和异常的数据
+		Map<String, Object> result = new HashMap<>();
+		// 获取异常记录
+		result.put("errorRecords", listener.getErrorRecords());
+		log.info("成功导入 {} 条用户数据，{} 条错误数据", listener.getSuccessRecords().size(), listener.getErrorRecords().size());
+		
+		return result;
+	}
+	
+	/**
+	 * 基于余弦相似度匹配用户
+	 *
+	 * @param userMatchRequest userMatchRequest
+	 * @param request          request
+	 * @return {@link List<UserVO>}
+	 */
+	@Override
+	public List<UserVO> cosMatchUsers(UserMatchRequest userMatchRequest, HttpServletRequest request) {
+		User loginUser = this.getLoginUser(request);
+		// 检查 Redis 中是否有缓存的匹配用户数据
+		String cacheKey = RedisConstant.FILE_NAME + RedisConstant.MATCH_USER + ":" + loginUser.getId();
+		if (Boolean.TRUE.equals(redisTemplate.hasKey(cacheKey))) {
+			// 如果缓存存在，直接获取并返回
+			String cachedResult = (String) redisTemplate.opsForValue().get(cacheKey);
+			return JSONUtil.toList(cachedResult, UserVO.class);
+		}
+		// 查询所有有标签的用户
+		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+		queryWrapper.select("id", "tags");
+		queryWrapper.isNotNull("tags");
+		List<User> userList = this.list(queryWrapper);
+		
+		// 获取当前登录用户的标签并解析为列表
+		String tags = loginUser.getTags();
+		List<String> tagList = JSONUtil.toList(tags, String.class);
+		
+		// 用户与相似度的列表
+		List<Pair<User, Double>> similarityList = new ArrayList<>();
+		
+		// 计算所有用户与当前用户的相似度
+		for (User user : userList) {
+			// 跳过无标签或当前用户自己
+			if (StringUtils.isBlank(user.getTags()) || user.getId().equals(loginUser.getId())) {
+				continue;
+			}
+			
+			// 解析用户标签
+			List<String> userTagList = JSONUtil.toList(user.getTags(), String.class);
+			// 计算余弦相似度
+			double similarity = CosineSimilarityUtil.cosineSimilarity(tagList, userTagList);
+			if (Double.isNaN(similarity)) {
+				similarity = 0;
+			}
+			// 将用户和相似度存入列表
+			similarityList.add(new Pair<>(user, similarity));
+		}
+		
+		// 按照相似度降序排序，并取前 num 个用户
+		List<Pair<User, Double>> topUserPairList = similarityList.stream()
+				.sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+				.limit(userMatchRequest.getNumber())
+				.collect(Collectors.toList());
+		
+		// 获取匹配用户的ID列表
+		List<Long> userIdList = topUserPairList.stream()
+				.map(pair -> pair.getKey().getId())
+				.collect(Collectors.toList());
+		
+		// 根据 ID 查询用户详情
+		QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+		userQueryWrapper.in("id", userIdList);
+		List<User> matchedUsers = this.list(userQueryWrapper);
+		
+		// 将用户按照最初排序的顺序返回，并设置相似度
+		Map<Long, Double> userSimilarityMap = topUserPairList.stream()
+				.collect(Collectors.toMap(pair -> pair.getKey().getId(), Pair::getValue));
+		
+		List<UserVO> userVOList = matchedUsers.stream()
+				.map(user -> {
+					UserVO userVO = this.getUserVO(user, request);
+					// 设置相似度
+					userVO.setSimilarity(userSimilarityMap.get(user.getId()));
+					return userVO;
+				})
+				.collect(Collectors.toList());
+		// 保存至Redis中 设置过期时间为一小时
+		redisTemplate.opsForValue().set(cacheKey, JSONUtil.toJsonStr(userVOList), 1, TimeUnit.HOURS);
+		return userVOList;
 	}
 }

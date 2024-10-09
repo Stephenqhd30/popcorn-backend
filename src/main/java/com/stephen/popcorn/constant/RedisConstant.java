@@ -2,16 +2,13 @@ package com.stephen.popcorn.constant;
 
 /**
  * @author: stephen qiu
- * @create: 2024-09-22 21:30
+ * @create: 2024-09-23 13:49
  **/
 public interface RedisConstant {
-	/**
-	 * 项目名称
-	 */
-	String FILE_NAME = "popcorn:";
 	
-	/**
-	 * 树形组件的 key
-	 */
+	String FILE_NAME = "popcorn:popcorn:";
+	
 	String TAG_TREE_KEY = "tag_tree";
+	
+	String MATCH_USER = "match_user";
 }
