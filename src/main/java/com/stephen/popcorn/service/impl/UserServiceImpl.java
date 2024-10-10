@@ -2,10 +2,12 @@ package com.stephen.popcorn.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.aop.UserExcelListener;
 import com.stephen.popcorn.common.ErrorCode;
@@ -193,25 +195,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 			throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
 		}
 		return currentUser;
-	}
-	
-	/**
-	 * 获取当前登录用户（允许未登录）
-	 *
-	 * @param request
-	 * @return
-	 */
-	@Override
-	public User getLoginUserPermitNull(HttpServletRequest request) {
-		// 先判断是否已登录
-		Object userObj = request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
-		User currentUser = (User) userObj;
-		if (currentUser == null || currentUser.getId() == null) {
-			return null;
-		}
-		// 从数据库查询（追求性能的话可以注释，直接走缓存）
-		long userId = currentUser.getId();
-		return this.getById(userId);
 	}
 	
 	/**

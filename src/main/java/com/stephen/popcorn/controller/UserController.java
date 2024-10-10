@@ -272,9 +272,7 @@ public class UserController {
 	@PostMapping("/list/page/vo")
 	public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
 	                                                   HttpServletRequest request) {
-		if (userQueryRequest == null) {
-			throw new BusinessException(ErrorCode.PARAMS_ERROR);
-		}
+		ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR);
 		long current = userQueryRequest.getCurrent();
 		long size = userQueryRequest.getPageSize();
 		// 限制爬虫
@@ -339,7 +337,7 @@ public class UserController {
 			// 调用服务层处理用户导入
 			result = userService.importUsers(file);
 		} catch (Exception e) {
-			return ResultUtils.error(ErrorCode.PARAMS_ERROR, "导入信息有误");
+			throw new BusinessException(ErrorCode.PARAMS_ERROR, "导入信息有误");
 		}
 		return ResultUtils.success(result);
 	}
@@ -386,7 +384,7 @@ public class UserController {
 	 * 通过余弦相似度想法计算出当前用户和当前用户的相似度
 	 *
 	 * @param userMatchRequest userMatchRequest
-	 * @param request  request
+	 * @param request          request
 	 * @return {@link BaseResponse<List<UserVO>>}
 	 */
 	@PostMapping("/match")
@@ -397,6 +395,4 @@ public class UserController {
 		ThrowUtils.throwIf(number <= 0 || number > 20, ErrorCode.PARAMS_ERROR, "匹配人数不能小于0人或者多于20人");
 		return ResultUtils.success(userService.cosMatchUsers(userMatchRequest, request));
 	}
-	
-	
 }
