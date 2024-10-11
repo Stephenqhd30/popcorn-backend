@@ -6,7 +6,7 @@ import com.stephen.popcorn.annotation.AuthCheck;
 import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.DeleteRequest;
 import com.stephen.popcorn.common.ErrorCode;
-import com.stephen.popcorn.constant.UserConstant;
+import com.stephen.popcorn.constants.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
 import com.stephen.popcorn.model.dto.team.*;
 import com.stephen.popcorn.model.dto.teamUser.TeamUserQueryRequest;

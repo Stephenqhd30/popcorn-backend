@@ -123,11 +123,20 @@ public interface UserService extends IService<User> {
 	Map<String, Object> importUsers(MultipartFile file);
 	
 	/**
-	 * 获取匹配的用户
+	 * 获取匹配的用户列表
 	 *
 	 * @param userMatchRequest userMatchRequest
-	 * @param request          request
+	 * @param request  request
 	 * @return {@link List<UserVO>}
 	 */
 	List<UserVO> cosMatchUsers(UserMatchRequest userMatchRequest, HttpServletRequest request);
+	
+	/**
+	 * 分页获取余弦相似度匹配用户
+	 *
+	 * @param userVOPage
+	 * @param loginUser
+	 * @return
+	 */
+	Page<UserVO> cosMatchUserByPage(Page<UserVO> userVOPage, User loginUser);
 }

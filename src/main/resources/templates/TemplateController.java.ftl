@@ -6,7 +6,7 @@ import ${packageName}.common.BaseResponse;
 import ${packageName}.common.DeleteRequest;
 import ${packageName}.common.ErrorCode;
 import ${packageName}.utils.ResultUtils;
-import ${packageName}.constant.UserConstant;
+import ${packageName}.constants.UserConstant;
 import ${packageName}.exception.BusinessException;
 import ${packageName}.utils.ThrowUtils;
 import ${packageName}.model.dto.${dataKey}.${upperDataKey}AddRequest;

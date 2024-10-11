@@ -2,7 +2,6 @@ package com.stephen.popcorn.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.exception.ExcelAnalysisException;
@@ -11,10 +10,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.aop.UserExcelListener;
 import com.stephen.popcorn.common.ErrorCode;
-import com.stephen.popcorn.constant.CommonConstant;
-import com.stephen.popcorn.constant.RedisConstant;
-import com.stephen.popcorn.constant.SaltConstant;
-import com.stephen.popcorn.constant.UserConstant;
+import com.stephen.popcorn.constants.CommonConstant;
+import com.stephen.popcorn.constants.RedisConstant;
+import com.stephen.popcorn.constants.SaltConstant;
+import com.stephen.popcorn.constants.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
 import com.stephen.popcorn.mapper.UserMapper;
 import com.stephen.popcorn.model.dto.user.UserMatchRequest;
@@ -61,6 +60,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 	
 	@Resource
 	private RedisTemplate<String, Object> redisTemplate;
+	
 	/**
 	 * 校验数据
 	 *
@@ -231,6 +231,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		return true;
 	}
 	
+	/**
+	 * 获取当前登录用户VO
+	 *
+	 * @param user
+	 * @return
+	 */
 	@Override
 	public LoginUserVO getLoginUserVO(User user) {
 		if (user == null) {
@@ -408,5 +414,40 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		// 保存至Redis中 设置过期时间为一小时
 		redisTemplate.opsForValue().set(cacheKey, JSONUtil.toJsonStr(userVOList), 1, TimeUnit.HOURS);
 		return userVOList;
+	}
+	
+	/**
+	 * 分页获取余弦相似度匹配用户
+	 *
+	 * @param userVOPage userVOPage
+	 * @param loginUser  loginUser
+	 * @return {@link Page<UserVO>}
+	 */
+	@Override
+	public Page<UserVO> cosMatchUserByPage(Page<UserVO> userVOPage, User loginUser) {
+		// 获取当前登录用户的标签并解析为列表
+		String tags = loginUser.getTags();
+		List<String> tagList = JSONUtil.toList(tags, String.class);
+		// 计算所有用户与当前用户的相似度
+		List<UserVO> userVOList = userVOPage.getRecords().stream()
+				// 过滤掉当前用户和没有标签的用户
+				.filter(user -> !ObjectUtils.isEmpty(user.getTagList()) && !user.getId().equals(loginUser.getId()))
+				.peek(user -> {
+					// 解析用户标签
+					List<String> userTagList = user.getTagList();
+					// 计算余弦相似度
+					double similarity = CosineSimilarityUtil.cosineSimilarity(tagList, userTagList);
+					if (Double.isNaN(similarity)) {
+						similarity = 0;
+					}
+					// 设置相似度
+					user.setSimilarity(similarity);
+				})
+				// 按照相似度降序排序
+				.sorted((a, b) -> Double.compare(b.getSimilarity(), a.getSimilarity()))
+				.collect(Collectors.toList());
+		// 更新分页数据
+		userVOPage.setRecords(userVOList);
+		return userVOPage;
 	}
 }

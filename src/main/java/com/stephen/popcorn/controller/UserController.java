@@ -7,8 +7,8 @@ import com.stephen.popcorn.annotation.AuthCheck;
 import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.DeleteRequest;
 import com.stephen.popcorn.common.ErrorCode;
-import com.stephen.popcorn.constant.SaltConstant;
-import com.stephen.popcorn.constant.UserConstant;
+import com.stephen.popcorn.constants.SaltConstant;
+import com.stephen.popcorn.constants.UserConstant;
 import com.stephen.popcorn.exception.BusinessException;
 import com.stephen.popcorn.model.dto.user.*;
 import com.stephen.popcorn.model.entity.User;
@@ -381,18 +381,46 @@ public class UserController {
 	}
 	
 	/**
-	 * 通过余弦相似度想法计算出当前用户和当前用户的相似度
+	 * 获取匹配用户列表
 	 *
 	 * @param userMatchRequest userMatchRequest
-	 * @param request          request
+	 * @param request  request
 	 * @return {@link BaseResponse<List<UserVO>>}
 	 */
 	@PostMapping("/match")
-	public BaseResponse<List<UserVO>> matchUsers(@RequestBody UserMatchRequest userMatchRequest, HttpServletRequest request) {
+	public BaseResponse<List<UserVO>> matchUserVOList(@RequestBody UserMatchRequest userMatchRequest, HttpServletRequest request) {
 		ThrowUtils.throwIf(userMatchRequest == null, ErrorCode.PARAMS_ERROR);
 		int number = userMatchRequest.getNumber();
 		// 检查参数是否合法
 		ThrowUtils.throwIf(number <= 0 || number > 20, ErrorCode.PARAMS_ERROR, "匹配人数不能小于0人或者多于20人");
 		return ResultUtils.success(userService.cosMatchUsers(userMatchRequest, request));
+	}
+	
+	/**
+	 * 通过余弦相似度想法计算出当前用户和当前用户的相似度
+	 *
+	 * @param userQueryRequest userQueryRequest
+	 * @param request          request
+	 * @return {@link BaseResponse<List<UserVO>>}
+	 */
+	@PostMapping("/match/user/vo/page")
+	public BaseResponse<Page<UserVO>> matchUserVOByPage(@RequestBody UserQueryRequest userQueryRequest, HttpServletRequest request) {
+		ThrowUtils.throwIf(userQueryRequest == null, ErrorCode.PARAMS_ERROR);
+		// 获取当前登录用户的标签列表
+		User loginUser = userService.getLoginUser(request);
+		if (StringUtils.isBlank(loginUser.getTags())) {
+			return ResultUtils.success(new Page<>());
+		}
+		long current = userQueryRequest.getCurrent();
+		long size = userQueryRequest.getPageSize();
+		// 限制爬虫
+		ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+		Page<User> userPage = userService.page(new Page<>(current, size),
+				userService.getQueryWrapper(userQueryRequest));
+		Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
+		List<UserVO> userVO = userService.getUserVO(userPage.getRecords(), request);
+		userVOPage.setRecords(userVO);
+		// 检查参数是否合法
+		return ResultUtils.success(userService.cosMatchUserByPage(userVOPage, loginUser));
 	}
 }

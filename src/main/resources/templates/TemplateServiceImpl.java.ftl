@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import ${packageName}.common.ErrorCode;
-import ${packageName}.constant.CommonConstant;
+import ${packageName}.constants.CommonConstant;
 import ${packageName}.utils.ThrowUtils;
 import ${packageName}.mapper.${upperDataKey}Mapper;
 import ${packageName}.model.dto.${dataKey}.${upperDataKey}QueryRequest;
