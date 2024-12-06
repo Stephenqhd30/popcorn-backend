@@ -1,6 +1,5 @@
-package com.stephen.popcorn.utils;
+package com.stephen.popcorn.common;
 
-import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.common.exception.BusinessException;
 
 /**

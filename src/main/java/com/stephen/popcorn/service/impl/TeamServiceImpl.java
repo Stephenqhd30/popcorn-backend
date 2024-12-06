@@ -22,7 +22,7 @@ import com.stephen.popcorn.service.TeamService;
 import com.stephen.popcorn.service.TeamUserService;
 import com.stephen.popcorn.service.UserService;
 import com.stephen.popcorn.utils.SqlUtils;
-import com.stephen.popcorn.utils.ThrowUtils;
+import com.stephen.popcorn.common.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;

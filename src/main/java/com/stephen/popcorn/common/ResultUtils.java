@@ -1,7 +1,4 @@
-package com.stephen.popcorn.utils;
-
-import com.stephen.popcorn.common.BaseResponse;
-import com.stephen.popcorn.common.ErrorCode;
+package com.stephen.popcorn.common;
 
 /**
  * 返回工具类

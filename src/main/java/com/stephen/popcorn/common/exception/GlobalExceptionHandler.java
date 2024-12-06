@@ -2,7 +2,7 @@ package com.stephen.popcorn.common.exception;
 
 import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.ErrorCode;
-import com.stephen.popcorn.utils.ResultUtils;
+import com.stephen.popcorn.common.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

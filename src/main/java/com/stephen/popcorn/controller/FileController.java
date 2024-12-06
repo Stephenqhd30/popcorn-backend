@@ -10,7 +10,7 @@ import com.stephen.popcorn.model.dto.file.UploadFileRequest;
 import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.enums.FileUploadBizEnum;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.utils.ResultUtils;
+import com.stephen.popcorn.common.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.web.bind.annotation.PostMapping;

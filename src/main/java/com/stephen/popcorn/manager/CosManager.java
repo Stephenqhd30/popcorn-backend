@@ -3,7 +3,7 @@ package com.stephen.popcorn.manager;
 import com.qcloud.cos.COSClient;
 import com.qcloud.cos.model.PutObjectRequest;
 import com.qcloud.cos.model.PutObjectResult;
-import com.stephen.popcorn.config.CosClientConfig;
+import com.stephen.popcorn.config.oss.cos.properties.CosProperties;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -18,7 +18,7 @@ import java.io.File;
 public class CosManager {
 
 	@Resource
-	private CosClientConfig cosClientConfig;
+	private CosProperties cosProperties;
 
 	@Resource
 	private COSClient cosClient;
@@ -31,7 +31,7 @@ public class CosManager {
 	 * @return
 	 */
 	public PutObjectResult putObject(String key, String localFilePath) {
-		PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key,
+		PutObjectRequest putObjectRequest = new PutObjectRequest(cosProperties.getBucket(), key,
 				new File(localFilePath));
 		return cosClient.putObject(putObjectRequest);
 	}
@@ -44,7 +44,7 @@ public class CosManager {
 	 * @return
 	 */
 	public PutObjectResult putObject(String key, File file) {
-		PutObjectRequest putObjectRequest = new PutObjectRequest(cosClientConfig.getBucket(), key,
+		PutObjectRequest putObjectRequest = new PutObjectRequest(cosProperties.getBucket(), key,
 				file);
 		return cosClient.putObject(putObjectRequest);
 	}
