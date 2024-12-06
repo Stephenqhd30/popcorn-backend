@@ -2,13 +2,13 @@ package com.stephen.popcorn.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.stephen.popcorn.annotation.AuthCheck;
+import com.stephen.popcorn.common.annotation.AuthCheck;
 import com.stephen.popcorn.common.BaseResponse;
 import com.stephen.popcorn.common.DeleteRequest;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.constants.RedisConstant;
 import com.stephen.popcorn.constants.UserConstant;
-import com.stephen.popcorn.exception.BusinessException;
+import com.stephen.popcorn.common.exception.BusinessException;
 import com.stephen.popcorn.model.dto.tag.*;
 import com.stephen.popcorn.model.entity.Tag;
 import com.stephen.popcorn.model.entity.User;

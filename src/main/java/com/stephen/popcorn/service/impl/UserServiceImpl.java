@@ -14,7 +14,7 @@ import com.stephen.popcorn.constants.CommonConstant;
 import com.stephen.popcorn.constants.RedisConstant;
 import com.stephen.popcorn.constants.SaltConstant;
 import com.stephen.popcorn.constants.UserConstant;
-import com.stephen.popcorn.exception.BusinessException;
+import com.stephen.popcorn.common.exception.BusinessException;
 import com.stephen.popcorn.mapper.UserMapper;
 import com.stephen.popcorn.model.dto.user.UserMatchRequest;
 import com.stephen.popcorn.model.dto.user.UserQueryRequest;

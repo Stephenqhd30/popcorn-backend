@@ -1,7 +1,7 @@
 package com.stephen.popcorn.utils;
 
 import com.stephen.popcorn.common.ErrorCode;
-import com.stephen.popcorn.exception.BusinessException;
+import com.stephen.popcorn.common.exception.BusinessException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;

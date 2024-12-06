@@ -1,4 +1,4 @@
-package com.stephen.popcorn.exception;
+package com.stephen.popcorn.common.exception;
 
 import com.stephen.popcorn.common.ErrorCode;
 

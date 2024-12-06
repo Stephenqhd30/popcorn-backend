@@ -1,8 +1,8 @@
 package com.stephen.popcorn.aop;
 
-import com.stephen.popcorn.annotation.AuthCheck;
+import com.stephen.popcorn.common.annotation.AuthCheck;
 import com.stephen.popcorn.common.ErrorCode;
-import com.stephen.popcorn.exception.BusinessException;
+import com.stephen.popcorn.common.exception.BusinessException;
 import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.enums.UserRoleEnum;
 import com.stephen.popcorn.service.UserService;
