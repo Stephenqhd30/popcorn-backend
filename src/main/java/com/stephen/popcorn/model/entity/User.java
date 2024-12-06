@@ -37,18 +37,6 @@ public class User implements Serializable {
 	private String userPassword;
 	
 	/**
-	 * 开放平台id
-	 */
-	@ExcelProperty(value = "开放平台id")
-	private String unionId;
-	
-	/**
-	 * 公众号openId
-	 */
-	@ExcelProperty(value = "公众号openId")
-	private String mpOpenId;
-	
-	/**
 	 * 用户昵称
 	 */
 	@ExcelProperty(value = "用户昵称")
@@ -95,12 +83,6 @@ public class User implements Serializable {
 	 */
 	@ExcelIgnore
 	private String tags;
-	
-	/**
-	 * 编辑时间
-	 */
-	@ExcelIgnore
-	private Date editTime;
 	
 	/**
 	 * 创建时间

@@ -35,17 +35,6 @@ public class UserVO implements Serializable {
 	private Integer userGender;
 	
 	/**
-	 * 开放平台id
-	 */
-	private String unionId;
-	
-	/**
-	 * 公众号openId
-	 */
-	private String mpOpenId;
-	
-	
-	/**
 	 * 用户头像
 	 */
 	private String userAvatar;
@@ -77,15 +66,9 @@ public class UserVO implements Serializable {
 	private Date createTime;
 	
 	/**
-	 * 编辑时间
-	 */
-	private Date editTime;
-	
-	/**
 	 * 更新时间
 	 */
 	private Date updateTime;
-	
 	
 	/**
 	 * 标签列表(使用JSON字符数组)

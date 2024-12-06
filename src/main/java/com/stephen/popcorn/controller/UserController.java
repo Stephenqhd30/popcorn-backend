@@ -310,11 +310,7 @@ public class UserController {
 		List<String> tagList = userEditRequest.getTags();
 		user.setTags(JSONUtil.toJsonStr(tagList));
 		// 对用户数据进行校验
-		try {
-			userService.validUser(user, false);
-		} catch (Exception e) {
-			return ResultUtils.error(ErrorCode.PARAMS_ERROR, e.getMessage());
-		}
+		userService.validUser(user, false);
 		// 如果用户需要修改密码
 		if (StringUtils.isNotBlank(userEditRequest.getUserPassword())) {
 			// todo 密码加密
@@ -322,7 +318,6 @@ public class UserController {
 			user.setUserPassword(encryptPassword);
 		}
 		user.setId(loginUser.getId());
-		user.setEditTime(new Date());
 		boolean result = userService.updateById(user);
 		ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
 		return ResultUtils.success(true);
