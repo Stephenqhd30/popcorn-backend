@@ -1,5 +1,6 @@
 package com.stephen.popcorn.manager;
 
+import com.stephen.popcorn.manager.oss.CosManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
