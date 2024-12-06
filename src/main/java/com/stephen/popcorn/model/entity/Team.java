@@ -30,7 +30,7 @@ public class Team implements Serializable {
 	 * 队伍简介
 	 */
 	private String teamProfile;
-
+	
 	/**
 	 * 队伍过期时间
 	 */

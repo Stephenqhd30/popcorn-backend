@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
+import com.stephen.popcorn.common.ThrowUtils;
 import com.stephen.popcorn.constants.CommonConstant;
 import com.stephen.popcorn.mapper.TeamUserMapper;
 import com.stephen.popcorn.model.dto.teamUser.TeamUserQueryRequest;
@@ -17,15 +18,16 @@ import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.TeamService;
 import com.stephen.popcorn.service.TeamUserService;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.utils.SqlUtils;
-import com.stephen.popcorn.common.ThrowUtils;
+import com.stephen.popcorn.utils.sql.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

@@ -1,4 +1,4 @@
-package com.stephen.popcorn.model.dto.excel;
+package com.stephen.popcorn.utils.document.excel.model;
 
 import com.stephen.popcorn.model.entity.User;
 import lombok.AllArgsConstructor;
@@ -7,12 +7,13 @@ import lombok.NoArgsConstructor;
 
 /**
  * 错误记录
+ *
  * @author stephen qiu
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ErrorRecord {
+public class ErrorRecord<T> {
 	/**
 	 * 导入的用户数据
 	 */

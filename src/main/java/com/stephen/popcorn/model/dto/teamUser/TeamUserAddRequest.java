@@ -11,16 +11,16 @@ import java.io.Serializable;
  */
 @Data
 public class TeamUserAddRequest implements Serializable {
-    
-    /**
-     * 用户id
-     */
-    private Long userId;
-    
-    /**
-     * 队伍id
-     */
-    private Long teamId;
-
-    private static final long serialVersionUID = 1L;
+	
+	/**
+	 * 用户id
+	 */
+	private Long userId;
+	
+	/**
+	 * 队伍id
+	 */
+	private Long teamId;
+	
+	private static final long serialVersionUID = 1L;
 }

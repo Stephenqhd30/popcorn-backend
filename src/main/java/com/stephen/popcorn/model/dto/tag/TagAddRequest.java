@@ -11,21 +11,21 @@ import java.io.Serializable;
  */
 @Data
 public class TagAddRequest implements Serializable {
-    
-    /**
-     * 标签名称
-     */
-    private String tagName;
-    
-    /**
-     * 父标签id
-     */
-    private Long parentId;
-    
-    /**
-     * 0-不是父标签，1-是父标签
-     */
-    private Integer isParent;
-
-    private static final long serialVersionUID = 1L;
+	
+	/**
+	 * 标签名称
+	 */
+	private String tagName;
+	
+	/**
+	 * 父标签id
+	 */
+	private Long parentId;
+	
+	/**
+	 * 0-不是父标签，1-是父标签
+	 */
+	private Integer isParent;
+	
+	private static final long serialVersionUID = 1L;
 }

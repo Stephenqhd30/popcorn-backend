@@ -12,41 +12,41 @@ import java.util.Date;
  */
 @Data
 public class TeamUpdateRequest implements Serializable {
-    
-    /**
-     * id
-     */
-    private Long id;
-    
-    /**
-     * 队伍名称
-     */
-    private String teamName;
-    
-    /**
-     * 队伍简介
-     */
-    private String teamProfile;
-    
-    /**
-     * 队伍过期时间
-     */
-    private Date expireTime;
-    
-    /**
-     * 队伍状态（0-公开,1-私密）
-     */
-    private Integer status;
-    
-    /**
-     * 最大人数
-     */
-    private Integer maxLength;
-    
-    /**
-     * 队伍密码
-     */
-    private String teamPassword;
-
-    private static final long serialVersionUID = 1L;
+	
+	/**
+	 * id
+	 */
+	private Long id;
+	
+	/**
+	 * 队伍名称
+	 */
+	private String teamName;
+	
+	/**
+	 * 队伍简介
+	 */
+	private String teamProfile;
+	
+	/**
+	 * 队伍过期时间
+	 */
+	private Date expireTime;
+	
+	/**
+	 * 队伍状态（0-公开,1-私密）
+	 */
+	private Integer status;
+	
+	/**
+	 * 最大人数
+	 */
+	private Integer maxLength;
+	
+	/**
+	 * 队伍密码
+	 */
+	private String teamPassword;
+	
+	private static final long serialVersionUID = 1L;
 }

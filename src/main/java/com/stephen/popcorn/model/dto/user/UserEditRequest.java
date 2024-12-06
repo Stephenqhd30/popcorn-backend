@@ -20,7 +20,7 @@ public class UserEditRequest implements Serializable {
 	private String userName;
 	
 	/**
-	 * 密码
+	 * 用户密码
 	 */
 	private String userPassword;
 	
@@ -35,6 +35,11 @@ public class UserEditRequest implements Serializable {
 	private String userProfile;
 	
 	/**
+	 * 性别（0-男，1-女，2-保密）
+	 */
+	private Integer userGender;
+	
+	/**
 	 * 用户邮箱
 	 */
 	private String userEmail;
@@ -45,13 +50,9 @@ public class UserEditRequest implements Serializable {
 	private String userPhone;
 	
 	/**
-	 * 用户性别（0-男 ，1-女，2-保密）
+	 * 标签列表(使用JSON字符数组)
 	 */
-	private Integer userGender;
+	private List<String> tags;
 	
-	/**
-	 * 标签列表
-	 */
-	private List<String> tagList;
-
+	
 }

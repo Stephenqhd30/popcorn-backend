@@ -14,27 +14,27 @@ import java.io.Serializable;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class TeamUserQueryRequest extends PageRequest implements Serializable {
-    
-    /**
-     * id
-     */
-    private Long id;
-    
-    /**
-     * 用户id
-     */
-    private Long userId;
-    
-    /**
-     * 队伍id
-     */
-    private Long teamId;
-    
-    /**
-     * 队长id
-     */
-    private Long captainId;
-    
-
-    private static final long serialVersionUID = 1L;
+	
+	/**
+	 * id
+	 */
+	private Long id;
+	
+	/**
+	 * 用户id
+	 */
+	private Long userId;
+	
+	/**
+	 * 队伍id
+	 */
+	private Long teamId;
+	
+	/**
+	 * 队长id
+	 */
+	private Long captainId;
+	
+	
+	private static final long serialVersionUID = 1L;
 }

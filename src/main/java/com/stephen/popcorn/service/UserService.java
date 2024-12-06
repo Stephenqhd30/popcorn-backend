@@ -57,6 +57,8 @@ public interface UserService extends IService<User> {
 	 */
 	User getLoginUser(HttpServletRequest request);
 	
+	User getLoginUserPermitNull(HttpServletRequest request);
+	
 	/**
 	 * 是否为管理员
 	 *
@@ -106,6 +108,8 @@ public interface UserService extends IService<User> {
 	 */
 	List<UserVO> getUserVO(List<User> userList, HttpServletRequest request);
 	
+	Page<UserVO> getUserVOPage(Page<User> userPage, HttpServletRequest request);
+	
 	/**
 	 * 获取查询条件
 	 *
@@ -126,7 +130,7 @@ public interface UserService extends IService<User> {
 	 * 获取匹配的用户列表
 	 *
 	 * @param userMatchRequest userMatchRequest
-	 * @param request  request
+	 * @param request          request
 	 * @return {@link List<UserVO>}
 	 */
 	List<UserVO> cosMatchUsers(UserMatchRequest userMatchRequest, HttpServletRequest request);

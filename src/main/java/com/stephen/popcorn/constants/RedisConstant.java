@@ -6,9 +6,18 @@ package com.stephen.popcorn.constants;
  **/
 public interface RedisConstant {
 	
-	String FILE_NAME = "popcorn:popcorn:";
+	/**
+	 * Redis key 文件上传路径前缀
+	 */
+	String FILE_NAME = "stephen:popcorn:";
 	
+	/**
+	 * Redis key 标签树
+	 */
 	String TAG_TREE_KEY = "tag_tree";
 	
+	/**
+	 * Redis key 匹配用户
+	 */
 	String MATCH_USER = "match_user";
 }

@@ -36,6 +36,11 @@ public class LoginUserVO implements Serializable {
 	private String userProfile;
 	
 	/**
+	 * 性别（0-男，1-女，2-保密）
+	 */
+	private Integer userGender;
+	
+	/**
 	 * 用户角色：user/admin/ban
 	 */
 	private String userRole;
@@ -51,16 +56,6 @@ public class LoginUserVO implements Serializable {
 	private String userPhone;
 	
 	/**
-	 * 用户性别（0-男 ，1-女，2-保密）
-	 */
-	private Integer userGender;
-	
-	/**
-	 * 标签列表
-	 */
-	private List<String> tagList;
-	
-	/**
 	 * 创建时间
 	 */
 	private Date createTime;
@@ -69,5 +64,20 @@ public class LoginUserVO implements Serializable {
 	 * 更新时间
 	 */
 	private Date updateTime;
+	
+	/**
+	 * 编辑时间
+	 */
+	private Date editTime;
+	
+	/**
+	 * 用户标签(JSON字符数组)
+	 */
+	private List<String> tags;
+	
+	/**
+	 * token
+	 */
+	private String token;
 	
 }

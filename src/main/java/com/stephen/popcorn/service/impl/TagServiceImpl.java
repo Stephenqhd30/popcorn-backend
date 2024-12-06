@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
+import com.stephen.popcorn.common.ThrowUtils;
+import com.stephen.popcorn.common.exception.BusinessException;
 import com.stephen.popcorn.constants.CommonConstant;
 import com.stephen.popcorn.mapper.TagMapper;
 import com.stephen.popcorn.model.dto.tag.TagDTO;
@@ -15,8 +17,7 @@ import com.stephen.popcorn.model.vo.TagVO;
 import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.TagService;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.utils.SqlUtils;
-import com.stephen.popcorn.common.ThrowUtils;
+import com.stephen.popcorn.utils.sql.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,9 +25,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -44,7 +44,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 	/**
 	 * 校验数据
 	 *
-	 * @param tag
+	 * @param tag tag
 	 * @param add 对创建的数据进行校验
 	 */
 	@Override
@@ -67,8 +67,8 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 	/**
 	 * 获取查询条件
 	 *
-	 * @param tagQueryRequest
-	 * @return
+	 * @param tagQueryRequest tagQueryRequest
+	 * @return {@link QueryWrapper<Tag>}
 	 */
 	@Override
 	public QueryWrapper<Tag> getQueryWrapper(TagQueryRequest tagQueryRequest) {
@@ -104,9 +104,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 	/**
 	 * 获取标签封装
 	 *
-	 * @param tag
-	 * @param request
-	 * @return
+	 * @param tag     tag
+	 * @param request request
+	 * @return {@link TagVO}
 	 */
 	@Override
 	public TagVO getTagVO(Tag tag, HttpServletRequest request) {
@@ -131,9 +131,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 	/**
 	 * 分页获取标签封装
 	 *
-	 * @param tagPage
-	 * @param request
-	 * @return
+	 * @param tagPage tagPage
+	 * @param request request
+	 * @return {@link Page<TagVO>}
 	 */
 	@Override
 	public Page<TagVO> getTagVOPage(Page<Tag> tagPage, HttpServletRequest request) {
@@ -142,30 +142,37 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 		if (CollUtil.isEmpty(tagList)) {
 			return tagVOPage;
 		}
-		// 对象列表 => 封装对象列表
-		List<TagVO> tagVOList = tagList.stream().map(TagVO::objToVo).collect(Collectors.toList());
-		
-		// todo 可以根据需要为封装对象补充值，不需要的内容可以删除
-		// region 可选
-		// 1. 关联查询用户信息
-		Set<Long> userIdSet = tagList.stream().map(Tag::getUserId).collect(Collectors.toSet());
-		Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
-				.collect(Collectors.groupingBy(User::getId));
-		// 填充信息
-		tagVOList.forEach(tagVO -> {
-			Long userId = tagVO.getUserId();
-			User user = null;
-			if (userIdUserListMap.containsKey(userId)) {
-				user = userIdUserListMap.get(userId).get(0);
-			}
-			tagVO.setUserVO(userService.getUserVO(user, request));
+		// 1. 异步获取对象列表 => 封装对象列表
+		CompletableFuture<List<TagVO>> tagListFurture = CompletableFuture.supplyAsync(() -> tagList.stream().map(TagVO::objToVo).collect(Collectors.toList()));
+		// 2. 异步获取用户信息 => 封装用户信息
+		CompletableFuture<Map<Long, List<User>>> userMapFurture = CompletableFuture.supplyAsync(() -> {
+			Set<Long> userIdSet = tagList.stream().map(Tag::getUserId).collect(Collectors.toSet());
+			return userService.listByIds(userIdSet).stream()
+					.collect(Collectors.groupingBy(User::getId));
+			
 		});
-		// endregion
 		
-		tagVOPage.setRecords(tagVOList);
+		try {
+			// todo 可以根据需要为封装对象补充值，不需要的内容可以删除
+			List<TagVO> tagVOList = tagListFurture.get();
+			// 1. 关联查询用户信息
+			Map<Long, List<User>> userIdUserListMap = userMapFurture.get();
+			// 填充信息
+			tagVOList.forEach(tagVO -> {
+				Long userId = tagVO.getUserId();
+				User user = null;
+				if (userIdUserListMap.containsKey(userId)) {
+					user = userIdUserListMap.get(userId).get(0);
+				}
+				tagVO.setUserVO(userService.getUserVO(user, request));
+			});
+			tagVOPage.setRecords(tagVOList);
+		} catch (Exception e) {
+			Thread.currentThread().interrupt();
+			throw new BusinessException(ErrorCode.SYSTEM_ERROR, "获取标签失败");
+		}
 		return tagVOPage;
 	}
-	
 	
 	/**
 	 * 递归将 Tag 实体转换为 TagDTO，并填充子标签
@@ -195,42 +202,19 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
 						TagDTO.TagChildren childDTO = new TagDTO.TagChildren();
 						childDTO.setId(childTag.getId());
 						childDTO.setTagName(childTag.getTagName());
-						
-						// 递归获取子节点的子节点
-						List<TagDTO.TagChildren> grandChildren = tagToTagChildren(childTag.getId());
-						childDTO.setTagChildrenList(grandChildren);
+						// 递归调用获取子标签的 DTO
+						childDTO.setChildren(Optional.ofNullable(this.getTagDTO(childTag).getChildren()).orElse(new ArrayList<>()));
 						
 						return childDTO;
-					}).collect(Collectors.toList());
+					}).filter(Objects::nonNull).collect(Collectors.toList());
 			
-			tagDTO.setTagChildrenList(childDTOList);
+			tagDTO.setChildren(childDTOList);
+		} else {
+			// 确保即使没有子标签也将 children 设置为一个空数组
+			tagDTO.setChildren(new ArrayList<>());
 		}
 		
 		return tagDTO;
 	}
 	
-	/**
-	 * 递归获取子标签的子节点
-	 *
-	 * @param parentId 父标签 id
-	 * @return {@link List<TagDTO.TagChildren>}
-	 */
-	private List<TagDTO.TagChildren> tagToTagChildren(Long parentId) {
-		QueryWrapper<Tag> childQueryWrapper = new QueryWrapper<>();
-		childQueryWrapper.eq("parentId", parentId);
-		List<Tag> childTags = this.list(childQueryWrapper);
-		
-		return childTags.stream()
-				.map(childTag -> {
-					TagDTO.TagChildren childDTO = new TagDTO.TagChildren();
-					childDTO.setId(childTag.getId());
-					childDTO.setTagName(childTag.getTagName());
-					
-					// 递归获取子节点的子节点
-					List<TagDTO.TagChildren> grandChildren = tagToTagChildren(childTag.getId());
-					childDTO.setTagChildrenList(grandChildren);
-					
-					return childDTO;
-				}).collect(Collectors.toList());
-	}
 }

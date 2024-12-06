@@ -37,6 +37,20 @@ public class UserExcelVO implements Serializable {
 	private String userPassword;
 	
 	/**
+	 * 开放平台id
+	 */
+	@ColumnWidth(20)
+	@ExcelProperty(value = "开放平台id")
+	private String unionId;
+	
+	/**
+	 * 公众号openId
+	 */
+	@ColumnWidth(20)
+	@ExcelProperty(value = "公众号openId")
+	private String mpOpenId;
+	
+	/**
 	 * 用户昵称
 	 */
 	@ColumnWidth(20)
@@ -84,19 +98,5 @@ public class UserExcelVO implements Serializable {
 	@ExcelProperty("手机号码")
 	@ColumnWidth(20)
 	private String userPhone;
-	
-	/**
-	 * 创建时间
-	 */
-	@ExcelProperty("创建时间")
-	@ColumnWidth(20)
-	private String createTime;
-	
-	/**
-	 * 更新时间
-	 */
-	@ExcelProperty("更新时间")
-	@ColumnWidth(20)
-	private String updateTime;
 	
 }

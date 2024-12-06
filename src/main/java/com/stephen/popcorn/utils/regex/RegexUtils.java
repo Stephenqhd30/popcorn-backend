@@ -1,10 +1,11 @@
-package com.stephen.popcorn.utils;
+package com.stephen.popcorn.utils.regex;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * 正则表达式校验工具类
+ *
  * @author: stephen qiu
  * @create: 2024-08-03 10:15
  **/
@@ -24,12 +25,17 @@ public class RegexUtils {
 	
 	/**
 	 * 验证身份证号码
+	 * 不能以0开头
+	 * 年份不能以17开头
+	 * 月份不能为13
+	 * 日期不能为32
+	 * 不能以a结尾
 	 *
 	 * @param idCard 居民身份证号码18位，第一位不能为0，最后一位可能是数字或字母，中间16位为数字 \d同[0-9]
 	 * @return 验证成功返回true，验证失败返回false
 	 */
 	public static boolean checkIdCard(String idCard) {
-		String regex = "[1-9]\\d{16}[a-zA-Z0-9]{1}";
+		String regex = "^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]$";
 		return Pattern.matches(regex, idCard);
 	}
 	
@@ -122,7 +128,8 @@ public class RegexUtils {
 	/**
 	 * 验证URL地址
 	 *
-	 * @param url 格式：http://blog.csdn.net:80/xyang81/article/details/7705960? 或 http://www.csdn.net:80
+	 * @param url 格式：<a href="http://blog.csdn.net:80/xyang81/article/details/7705960">...</a>?
+	 *            或 <a href="http://www.csdn.net:80">...</a>
 	 * @return 验证成功返回true，验证失败返回false
 	 */
 	public static boolean checkURL(String url) {
@@ -133,7 +140,7 @@ public class RegexUtils {
 	/**
 	 * <pre>
 	 * 获取网址 URL 的一级域名
-	 * http://detail.tmall.com/item.htm?spm=a230r.1.10.44.1xpDSH&id=15453106243&_u=f4ve1uq1092 ->> tmall.com
+	 * <a href="http://detail.tmall.com/item.htm?spm=a230r.1.10.44.1xpDSH&id=15453106243&_u=f4ve1uq1092">...</a> ->> tmall.com
 	 * </pre>
 	 *
 	 * @param url
@@ -171,14 +178,16 @@ public class RegexUtils {
 	}
 	
 	/**
-	 * 匹配IP地址(简单匹配，格式，如：192.168.1.1，127.0.0.1，没有匹配IP段的大小)
+	 * 只包含数字和英文的正则表达式
 	 *
-	 * @param password 密码正则
+	 * @param text 传入的字符串
 	 * @return 验证成功返回true，验证失败返回false
 	 */
-	public static boolean checkPassword(String password) {
-		String regex = "[1-9](\\d{1,2})?\\.(0|([1-9](\\d{1,2})?))\\.(0|([1-9](\\d{1,2})?))\\.(0|([1-9](\\d{1,2})?))";
-		return Pattern.matches(regex, password);
+	public static boolean checkIncludeDigitOrEnglish(String text) {
+		String regex = "^[0-9a-zA-Z]+$";
+		return Pattern.matches(regex, text);
 	}
+	
+	
 	
 }

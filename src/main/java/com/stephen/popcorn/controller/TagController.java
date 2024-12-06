@@ -1,22 +1,18 @@
 package com.stephen.popcorn.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.stephen.popcorn.common.annotation.AuthCheck;
-import com.stephen.popcorn.common.BaseResponse;
-import com.stephen.popcorn.common.DeleteRequest;
-import com.stephen.popcorn.common.ErrorCode;
+import com.stephen.popcorn.common.*;
+import com.stephen.popcorn.common.exception.BusinessException;
 import com.stephen.popcorn.constants.RedisConstant;
 import com.stephen.popcorn.constants.UserConstant;
-import com.stephen.popcorn.common.exception.BusinessException;
 import com.stephen.popcorn.model.dto.tag.*;
 import com.stephen.popcorn.model.entity.Tag;
 import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.vo.TagVO;
 import com.stephen.popcorn.service.TagService;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.common.ResultUtils;
-import com.stephen.popcorn.common.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -109,7 +105,7 @@ public class TagController {
 	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/update")
-	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	@SaCheckRole(UserConstant.ADMIN_ROLE)
 	public BaseResponse<Boolean> updateTag(@RequestBody TagUpdateRequest tagUpdateRequest) {
 		if (tagUpdateRequest == null || tagUpdateRequest.getId() <= 0) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -152,7 +148,7 @@ public class TagController {
 	 * @return BaseResponse<Page < Tag>>
 	 */
 	@PostMapping("/list/page")
-	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	@SaCheckRole(UserConstant.ADMIN_ROLE)
 	public BaseResponse<Page<Tag>> listTagByPage(@RequestBody TagQueryRequest tagQueryRequest) {
 		long current = tagQueryRequest.getCurrent();
 		long size = tagQueryRequest.getPageSize();
@@ -247,7 +243,7 @@ public class TagController {
 	 */
 	@GetMapping("/list/tree")
 	public BaseResponse<List<TagDTO>> listTagByTree() {
-		String filepath =  RedisConstant.FILE_NAME + RedisConstant.TAG_TREE_KEY;
+		String filepath = RedisConstant.FILE_NAME + RedisConstant.TAG_TREE_KEY;
 		// 先从 Redis 中查询是否过期
 		if (Boolean.TRUE.equals(redisTemplate.hasKey(filepath))) {
 			return ResultUtils.success((List<TagDTO>) redisTemplate.opsForValue().get(filepath));

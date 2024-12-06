@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -13,8 +14,9 @@ import java.util.List;
  * @create: 2024-09-22 20:22
  **/
 @Data
-public class TagDTO {
+public class TagDTO implements Serializable {
 	
+	private static final long serialVersionUID = 5969809940905979450L;
 	/**
 	 * 标签 id
 	 */
@@ -26,12 +28,13 @@ public class TagDTO {
 	/**
 	 * 标签子节点
 	 */
-	private List<TagChildren> tagChildrenList;
+	private List<TagChildren> children;
 	
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public static class TagChildren {
+	public static class TagChildren implements Serializable {
+		private static final long serialVersionUID = -795301363889010532L;
 		/**
 		 * 标签子节点 id
 		 */
@@ -42,8 +45,8 @@ public class TagDTO {
 		private String tagName;
 		
 		/**
-		 * 子节点的子节点列表 (递归结构)
+		 * 标签子节点子节点
 		 */
-		private List<TagChildren> tagChildrenList;
+		private List<TagChildren> children;
 	}
 }

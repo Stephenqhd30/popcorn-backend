@@ -25,14 +25,14 @@ public class UserAddRequest implements Serializable {
 	private String userAccount;
 	
 	/**
-	 * 密码
-	 */
-	private String userPassword;
-	
-	/**
 	 * 用户头像
 	 */
 	private String userAvatar;
+	
+	/**
+	 * 性别（0-男，1-女，2-保密）
+	 */
+	private Integer userGender;
 	
 	/**
 	 * 用户角色: user, admin
@@ -55,13 +55,9 @@ public class UserAddRequest implements Serializable {
 	private String userPhone;
 	
 	/**
-	 * 用户性别（0-男 ，1-女，2-保密）
+	 * 标签列表(使用JSON字符数组)
 	 */
-	private Integer userGender;
+	private List<String> tags;
 	
-	/**
-	 * 标签列表
-	 */
-	private List<String> tagList;
 	
 }

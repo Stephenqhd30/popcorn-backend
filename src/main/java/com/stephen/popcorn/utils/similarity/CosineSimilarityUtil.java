@@ -1,4 +1,4 @@
-package com.stephen.popcorn.utils;
+package com.stephen.popcorn.utils.similarity;
 
 import java.util.HashMap;
 import java.util.List;

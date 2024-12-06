@@ -1,13 +1,11 @@
 package com.stephen.popcorn.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.stephen.popcorn.common.annotation.AuthCheck;
-import com.stephen.popcorn.common.BaseResponse;
-import com.stephen.popcorn.common.DeleteRequest;
-import com.stephen.popcorn.common.ErrorCode;
-import com.stephen.popcorn.constants.UserConstant;
+import com.stephen.popcorn.common.*;
 import com.stephen.popcorn.common.exception.BusinessException;
+import com.stephen.popcorn.constants.UserConstant;
 import com.stephen.popcorn.model.dto.team.*;
 import com.stephen.popcorn.model.dto.teamUser.TeamUserQueryRequest;
 import com.stephen.popcorn.model.entity.Team;
@@ -17,8 +15,6 @@ import com.stephen.popcorn.model.vo.TeamVO;
 import com.stephen.popcorn.service.TeamService;
 import com.stephen.popcorn.service.TeamUserService;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.common.ResultUtils;
-import com.stephen.popcorn.common.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,7 +120,7 @@ public class TeamController {
 	 * @return BaseResponse<Boolean>
 	 */
 	@PostMapping("/update")
-	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	@SaCheckRole(UserConstant.ADMIN_ROLE)
 	public BaseResponse<Boolean> updateTeam(@RequestBody TeamUpdateRequest teamUpdateRequest) {
 		if (teamUpdateRequest == null || teamUpdateRequest.getId() <= 0) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -167,7 +163,7 @@ public class TeamController {
 	 * @return BaseResponse<Page < Team>>
 	 */
 	@PostMapping("/list/page")
-	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	@SaCheckRole(UserConstant.ADMIN_ROLE)
 	public BaseResponse<Page<Team>> listTeamByPage(@RequestBody TeamQueryRequest teamQueryRequest) {
 		long current = teamQueryRequest.getCurrent();
 		long size = teamQueryRequest.getPageSize();

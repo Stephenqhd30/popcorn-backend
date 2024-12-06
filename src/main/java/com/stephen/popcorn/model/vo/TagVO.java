@@ -59,8 +59,8 @@ public class TagVO implements Serializable {
 	/**
 	 * 封装类转对象
 	 *
-	 * @param tagVO tagVO
-	 * @return Tag
+	 * @param tagVO
+	 * @return
 	 */
 	public static Tag voToObj(TagVO tagVO) {
 		if (tagVO == null) {
@@ -74,8 +74,8 @@ public class TagVO implements Serializable {
 	/**
 	 * 对象转封装类
 	 *
-	 * @param tag tag
-	 * @return static
+	 * @param tag
+	 * @return
 	 */
 	public static TagVO objToVo(Tag tag) {
 		if (tag == null) {

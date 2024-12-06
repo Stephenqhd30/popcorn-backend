@@ -27,26 +27,32 @@ public class User implements Serializable {
 	/**
 	 * 用户账号
 	 */
-	@ExcelProperty("用户账号")
+	@ExcelProperty(value = "用户账号")
 	private String userAccount;
 	
 	/**
 	 * 用户密码
 	 */
-	@ExcelProperty("用户密码")
+	@ExcelProperty(value = "用户密码")
 	private String userPassword;
+	
+	/**
+	 * 开放平台id
+	 */
+	@ExcelProperty(value = "开放平台id")
+	private String unionId;
+	
+	/**
+	 * 公众号openId
+	 */
+	@ExcelProperty(value = "公众号openId")
+	private String mpOpenId;
 	
 	/**
 	 * 用户昵称
 	 */
-	@ExcelProperty("用户昵称")
+	@ExcelProperty(value = "用户昵称")
 	private String userName;
-	
-	/**
-	 * 用户性别（0-男 ，1-女，2-保密）
-	 */
-	@ExcelProperty("用户性别（0-男 ，1-女，2-保密）")
-	private Integer userGender;
 	
 	/**
 	 * 用户头像
@@ -55,34 +61,46 @@ public class User implements Serializable {
 	private String userAvatar;
 	
 	/**
+	 * 性别（0-男，1-女，2-保密）
+	 */
+	@ExcelProperty(value = "性别（0-男，1-女，2-保密）")
+	private Integer userGender;
+	
+	/**
 	 * 用户简介
 	 */
-	@ExcelProperty("用户简介")
+	@ExcelProperty(value = "用户简介")
 	private String userProfile;
 	
 	/**
 	 * 用户角色：user/admin/ban
 	 */
-	@ExcelProperty("用户角色：user/admin/ban")
+	@ExcelIgnore
 	private String userRole;
 	
 	/**
 	 * 用户邮箱
 	 */
-	@ExcelProperty("用户邮箱")
+	@ExcelProperty(value = "用户邮箱")
 	private String userEmail;
 	
 	/**
 	 * 手机号码
 	 */
-	@ExcelProperty("手机号码")
+	@ExcelProperty(value = "手机号码")
 	private String userPhone;
 	
 	/**
-	 * 标签列表
+	 * 标签列表(使用JSON字符数组)
 	 */
 	@ExcelIgnore
 	private String tags;
+	
+	/**
+	 * 编辑时间
+	 */
+	@ExcelIgnore
+	private Date editTime;
 	
 	/**
 	 * 创建时间

@@ -1,12 +1,10 @@
 package com.stephen.popcorn.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.stephen.popcorn.common.annotation.AuthCheck;
-import com.stephen.popcorn.common.BaseResponse;
-import com.stephen.popcorn.common.DeleteRequest;
-import com.stephen.popcorn.common.ErrorCode;
-import com.stephen.popcorn.constants.UserConstant;
+import com.stephen.popcorn.common.*;
 import com.stephen.popcorn.common.exception.BusinessException;
+import com.stephen.popcorn.constants.UserConstant;
 import com.stephen.popcorn.model.dto.teamUser.TeamUserAddRequest;
 import com.stephen.popcorn.model.dto.teamUser.TeamUserQueryRequest;
 import com.stephen.popcorn.model.entity.TeamUser;
@@ -14,8 +12,6 @@ import com.stephen.popcorn.model.entity.User;
 import com.stephen.popcorn.model.vo.TeamUserVO;
 import com.stephen.popcorn.service.TeamUserService;
 import com.stephen.popcorn.service.UserService;
-import com.stephen.popcorn.common.ResultUtils;
-import com.stephen.popcorn.common.ThrowUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +45,7 @@ public class TeamUserController {
 	 * @return BaseResponse<Long>
 	 */
 	@PostMapping("/add")
-	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	@SaCheckRole(UserConstant.ADMIN_ROLE)
 	public BaseResponse<Long> addTeamUser(@RequestBody TeamUserAddRequest teamUserAddRequest, HttpServletRequest request) {
 		ThrowUtils.throwIf(teamUserAddRequest == null, ErrorCode.PARAMS_ERROR);
 		// todo 在此处将实体类和 DTO 进行转换
@@ -118,7 +114,7 @@ public class TeamUserController {
 	 * @return BaseResponse<Page < TeamUser>>
 	 */
 	@PostMapping("/list/page")
-	@AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+	@SaCheckRole(UserConstant.ADMIN_ROLE)
 	public BaseResponse<Page<TeamUser>> listTeamUserByPage(@RequestBody TeamUserQueryRequest teamUserQueryRequest) {
 		long current = teamUserQueryRequest.getCurrent();
 		long size = teamUserQueryRequest.getPageSize();
