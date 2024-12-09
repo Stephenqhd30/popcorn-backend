@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.stephen.popcorn.common.ErrorCode;
 import com.stephen.popcorn.common.ThrowUtils;
+import com.stephen.popcorn.common.exception.BusinessException;
 import com.stephen.popcorn.constants.CommonConstant;
 import com.stephen.popcorn.mapper.TeamMapper;
 import com.stephen.popcorn.model.dto.team.TeamJoinRequest;
@@ -22,6 +23,7 @@ import com.stephen.popcorn.model.vo.UserVO;
 import com.stephen.popcorn.service.TeamService;
 import com.stephen.popcorn.service.TeamUserService;
 import com.stephen.popcorn.service.UserService;
+import com.stephen.popcorn.utils.redisson.lock.LockUtils;
 import com.stephen.popcorn.utils.sql.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -215,46 +217,66 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
 	 */
 	@Override
 	public boolean joinTeam(TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
+		// 校验请求参数
 		ThrowUtils.throwIf(teamJoinRequest == null, ErrorCode.PARAMS_ERROR);
-		// 取出加入队伍中的信息
 		Long teamId = teamJoinRequest.getTeamId();
 		String joinTeamPassword = teamJoinRequest.getTeamPassword();
-		// 获取当前队伍信息
+		
+		// 获取队伍信息
 		ThrowUtils.throwIf(teamId == null || teamId <= 0, ErrorCode.PARAMS_ERROR);
 		Team team = this.getById(teamId);
 		ThrowUtils.throwIf(team == null, ErrorCode.NOT_FOUND_ERROR, "队伍不存在");
-		// 校验队伍信息
+		
+		// 校验队伍状态
 		this.validTeam(team, false);
 		String teamPassword = team.getTeamPassword();
-		// 对数据进行校验
-		if (TeamStatusEnum.SECURITY.equals(TeamStatusEnum.getEnumByValue(team.getStatus()))) {
-			ThrowUtils.throwIf(StringUtils.isBlank(joinTeamPassword) || !joinTeamPassword.equals(teamPassword), ErrorCode.PARAMS_ERROR, "密码错误");
-		}
 		
-		// 需要查询数据库的关系
-		// 该用户及加入队伍的数量
-		User loginUser = userService.getLoginUser(request);
-		Long userId = loginUser.getId();
-		LambdaQueryWrapper<TeamUser> teamUserQueryWrapper = Wrappers.lambdaQuery(TeamUser.class)
-				.eq(TeamUser::getUserId, userId);
-		// 不能重复加入
-		long hasJoinNum = teamUserService.count(teamUserQueryWrapper);
-		ThrowUtils.throwIf(hasJoinNum > 5, ErrorCode.PARAMS_ERROR, "最多创建和加入五个队伍");
-		teamUserQueryWrapper.eq(TeamUser::getTeamId, teamId);
-		// 不能重复加入
-		long hasUserJoinTeam = teamUserService.count(teamUserQueryWrapper);
-		ThrowUtils.throwIf(hasUserJoinTeam > 0, ErrorCode.PARAMS_ERROR, "用户已加入队伍");
-		// 已加入队伍的人数
-		QueryWrapper<TeamUser> queryWrapper = new QueryWrapper<>();
-		queryWrapper.eq("teamId", teamId);
-		long teamHasJoinNum = teamUserService.count(teamUserQueryWrapper);
-		ThrowUtils.throwIf(teamHasJoinNum >= team.getMaxLength(), ErrorCode.OPERATION_ERROR, "队伍以满");
-		// 修改队伍信息
-		TeamUser teamUser = new TeamUser();
-		teamUser.setUserId(userId);
-		teamUser.setTeamId(teamId);
-		return teamUserService.save(teamUser);
+		// 校验队伍密码
+		if (TeamStatusEnum.SECURITY.equals(TeamStatusEnum.getEnumByValue(team.getStatus()))) {
+			ThrowUtils.throwIf(StringUtils.isBlank(joinTeamPassword) || !joinTeamPassword.equals(teamPassword),
+					ErrorCode.PARAMS_ERROR, "密码错误");
+		}
+		// 分布式锁的Key
+		String lockKey = "team:join:" + teamId;
+		boolean lockAcquired = LockUtils.lockEventWithRetry(lockKey, 3, 200, () -> {
+			// 执行加入队伍的逻辑，确保操作不会被并发执行
+			User loginUser = userService.getLoginUser(request);
+			Long userId = loginUser.getId();
+			
+			// 查询该用户是否已经加入队伍，避免重复加入
+			long userTeamCount = teamUserService.count(Wrappers.lambdaQuery(TeamUser.class)
+					.eq(TeamUser::getUserId, userId)
+					.eq(TeamUser::getTeamId, teamId));
+			ThrowUtils.throwIf(userTeamCount > 0, ErrorCode.PARAMS_ERROR, "用户已加入该队伍");
+			
+			// 校验该队伍是否已经满员
+			long currentTeamSize = teamUserService.count(new QueryWrapper<TeamUser>().eq("teamId", teamId));
+			ThrowUtils.throwIf(currentTeamSize >= team.getMaxLength(), ErrorCode.OPERATION_ERROR, "队伍已满");
+			
+			// 校验该用户是否已经加入超过5个队伍
+			long userTeamJoinCount = teamUserService.count(Wrappers.lambdaQuery(TeamUser.class)
+					.eq(TeamUser::getUserId, userId));
+			ThrowUtils.throwIf(userTeamJoinCount >= 5, ErrorCode.PARAMS_ERROR, "最多加入五个队伍");
+			
+			// 保存用户加入队伍的信息
+			TeamUser teamUser = new TeamUser();
+			teamUser.setUserId(userId);
+			teamUser.setTeamId(teamId);
+			teamUser.setCaptainId(team.getUserId());
+			// 保存队伍用户信息
+			return teamUserService.save(teamUser);
+		}, () -> {
+			// 未成功获取锁时执行的操作
+			throw new BusinessException(ErrorCode.OPERATION_ERROR, "队伍正在处理中，请稍后再试");
+		});
+		
+		// 如果未成功获取锁，抛出异常
+		if (!lockAcquired) {
+			throw new BusinessException(ErrorCode.OPERATION_ERROR, "队伍正在处理中，请稍后再试");
+		}
+		return true;
 	}
+	
 	
 	/**
 	 * 退出队伍

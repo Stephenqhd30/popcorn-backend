@@ -48,7 +48,7 @@ public class TeamUserServiceImpl extends ServiceImpl<TeamUserMapper, TeamUser> i
 	/**
 	 * 校验数据
 	 *
-	 * @param teamUser
+	 * @param teamUser teamUser
 	 * @param add      对创建的数据进行校验
 	 */
 	@Override
@@ -73,8 +73,8 @@ public class TeamUserServiceImpl extends ServiceImpl<TeamUserMapper, TeamUser> i
 	/**
 	 * 获取查询条件
 	 *
-	 * @param teamUserQueryRequest
-	 * @return
+	 * @param teamUserQueryRequest teamUserQueryRequest
+	 * @return {@link QueryWrapper {@link TeamUser}}
 	 */
 	@Override
 	public QueryWrapper<TeamUser> getQueryWrapper(TeamUserQueryRequest teamUserQueryRequest) {
@@ -104,9 +104,9 @@ public class TeamUserServiceImpl extends ServiceImpl<TeamUserMapper, TeamUser> i
 	/**
 	 * 获取队伍-用户封装
 	 *
-	 * @param teamUser
-	 * @param request
-	 * @return
+	 * @param teamUser teamUser
+	 * @param request  request
+	 * @return {@link TeamUserVO}
 	 */
 	@Override
 	public TeamUserVO getTeamUserVO(TeamUser teamUser, HttpServletRequest request) {
@@ -138,9 +138,9 @@ public class TeamUserServiceImpl extends ServiceImpl<TeamUserMapper, TeamUser> i
 	/**
 	 * 分页获取队伍-用户封装
 	 *
-	 * @param teamUserPage
-	 * @param request
-	 * @return
+	 * @param teamUserPage teamUserPage
+	 * @param request      request
+	 * @return {@link Page {@link TeamUserVO}}
 	 */
 	@Override
 	public Page<TeamUserVO> getTeamUserVOPage(Page<TeamUser> teamUserPage, HttpServletRequest request) {
@@ -150,9 +150,7 @@ public class TeamUserServiceImpl extends ServiceImpl<TeamUserMapper, TeamUser> i
 			return teamUserVOPage;
 		}
 		// 对象列表 => 封装对象列表
-		List<TeamUserVO> teamUserVOList = teamUserList.stream().map(teamUser -> {
-			return TeamUserVO.objToVo(teamUser);
-		}).collect(Collectors.toList());
+		List<TeamUserVO> teamUserVOList = teamUserList.stream().map(TeamUserVO::objToVo).collect(Collectors.toList());
 		
 		// todo 可以根据需要为封装对象补充值，不需要的内容可以删除
 		// region 可选
