@@ -1,7 +1,9 @@
 package com.stephen.popcorn.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.stephen.popcorn.common.*;
 import com.stephen.popcorn.common.exception.BusinessException;
@@ -60,8 +62,13 @@ public class TeamController {
 		BeanUtils.copyProperties(teamAddRequest, team);
 		// 数据校验
 		teamService.validTeam(team, true);
-		// todo 填充默认值
 		User loginUser = userService.getLoginUser(request);
+		// 当前用户只能创建或加入五个队伍
+		LambdaQueryWrapper<TeamUser> teamUserLambdaQueryWrapper = Wrappers.lambdaQuery(TeamUser.class)
+				.eq(TeamUser::getUserId, loginUser.getId());
+		long count = teamUserService.count(teamUserLambdaQueryWrapper);
+		ThrowUtils.throwIf(count > UserConstant.MAX_TEAM_COUNT, ErrorCode.PARAMS_ERROR, "当前用户只能创建或加入五个队伍");
+		// todo 填充默认值
 		team.setUserId(loginUser.getId());
 		TeamUser teamUser = new TeamUser();
 		teamUser.setUserId(loginUser.getId());
@@ -109,7 +116,7 @@ public class TeamController {
 		// 操作数据库
 		boolean result = teamService.removeById(id);
 		boolean remove = teamUserService.remove(queryWrapper);
-		ThrowUtils.throwIf(!result || !remove, ErrorCode.OPERATION_ERROR);
+		ThrowUtils.throwIf(!result && !remove, ErrorCode.OPERATION_ERROR);
 		return ResultUtils.success(true);
 	}
 	

@@ -41,4 +41,6 @@ public interface UserConstant {
 	String BAN_ROLE = "ban";
 	
 	// endregion
+	
+	Long MAX_TEAM_COUNT = 5L;
 }
